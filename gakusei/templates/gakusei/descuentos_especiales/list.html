@@ -1,0 +1,28 @@
+{% extends 'gakusei/list-layout.html' %}
+
+    {% block card-title %}Descuentos Especiales{% endblock %}
+
+    {% block create-url %}{% url 'descuento-especial-create' %}{% endblock %}
+    {% block create-text %}Registrar Descuento{% endblock %}
+
+    {% block filter-url %}{% url 'descuento-especial-filter' %}{% endblock %}
+
+    {% block thead %}
+        <th>Estudiante</th>
+        <th>Descuento</th>
+        <th></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% for descuento in object_list %}
+            <tr>
+                <td>{{descuento.estudiante}}</td>
+                <td>{{descuento.descuento}}$</td>
+                <td class="text-center align-middle"><a href="{% url 'descuento-especial-detail' descuento.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

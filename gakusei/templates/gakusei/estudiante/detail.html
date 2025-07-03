@@ -1,0 +1,70 @@
+{% extends 'gakusei/detail-layout.html' %}    
+
+    {% block regresar-url %}
+        {% url 'estudiante' %}
+    {% endblock %}
+
+
+    {% block card-title %}
+        Estudiante {{object.full_name}}
+    {% endblock %}
+
+
+    {% block edit-url %}{% url 'estudiante-edit' object.pk %}{% endblock %}
+    {% block edit-text %}<i class="fa-solid fa-user-pen"></i> Editar Estudiante{% endblock %}
+
+
+    {% block card-body %}
+    
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><span class="fw-bold">Status:</span>        {{ object.status }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Cédula:</span>        {{ object.cedula }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Primer Nombre:</span> {{ object.personal_data.first_name }}      </li>
+            <li class="list-group-item"><span class="fw-bold">Segundo Nombre:</span> {% if object.personal_data.middle_name %}{{ object.personal_data.middle_name }}{% else %} <i>---</i> {% endif %}     </li>
+            <li class="list-group-item"><span class="fw-bold">Primer Apellido:</span> {{ object.personal_data.last_name_1 }}     </li>
+            <li class="list-group-item"><span class="fw-bold">Segundo Apellido:</span> {% if object.personal_data.last_name_2 %}{{ object.personal_data.last_name_2 }}{% else %} <i>---</i> {% endif %}    </li>
+            <li class="list-group-item"><span class="fw-bold">Teléfono Móvil:</span> {{ object.personal_data.telefono }}         </li>
+            <li class="list-group-item"><span class="fw-bold">Correo Personal:</span> {{ object.personal_data.personal_email }}  </li>
+
+        </ul>
+        
+        {% if object.representante %}
+        <h2>Representante</h2>
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><span class="fw-bold">Cédula:</span> {{ object.representante.cedula }}</li>
+            <li class="list-group-item"><span class="fw-bold">Nombre Completo:</span> {{ object.representante.full_name }}</li>
+            <li class="list-group-item"><span class="fw-bold">Teléfono Móvil:</span> {{ object.representante.personal_data.telefono }}</li>
+            <li class="list-group-item"><span class="fw-bold">Correo Personal:</span> {{ object.representante.personal_data.personal_email }}</li>
+        </ul>
+        {% endif %}
+
+
+        <h3>Clases Inscritas</h3>
+
+        {% if object.inscripciones.all %}
+        <div class="table-responsive mb-4">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="table-primary">
+                    <th>Clase</th>
+                    <th>Status</th>
+                    <th>Mensualidad</th>
+                </thead>
+                <tbody>
+                    {% for inscripcion in object.inscripciones.all %}
+                    <tr>
+                        <td><a href="{% url 'clase-detail' inscripcion.clase.pk %}">{{inscripcion.clase}}</a></td>
+                        <td>{{inscripcion.clase.status}}</td>
+                        <td><a href="{% url 'inscripciones-detail' inscripcion.id %}">{{inscripcion.precio_a_pagar}}$</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="mb-4"><i>Estudiante no inscripto en ninguna clase.</i></p>
+        {% endif %}
+    {% endblock %}
+
+    {% block delete-title %}Eliminar Estudiante{% endblock %}
+    {% block delete-url %}{% url 'estudiante-delete' object.pk %}{% endblock %}
+    

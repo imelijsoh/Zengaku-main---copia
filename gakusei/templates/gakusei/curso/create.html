@@ -1,0 +1,13 @@
+{% extends 'gakusei/create-layout.html' %}
+{% load crispy_forms_tags %}
+
+    {% block regresar-url %}{% url 'curso' %}{% endblock %}
+
+    {% block card-title %}Registro de Curso{% endblock %}
+
+    {% block form %}
+        <form action="{% url 'curso-create' %}" method="post"> {%csrf_token%}
+            {{ form|crispy }}
+            <input class="btn btn-lg btn-success" type="submit" value="Registrar">
+        </form>
+    {% endblock %}

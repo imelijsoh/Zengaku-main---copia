@@ -1,0 +1,91 @@
+{% extends 'gakusei/create-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+    <style>
+        .time-inputs {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .time-inputs h4 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        .error-message {
+            color: red;
+            margin-top: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+    <script src="{% static 'gakusei/js/clase/create.js' %}"></script>
+{% endblock %}
+
+{% block regresar-url %}{% url 'clase' %}{% endblock %}
+
+{% block card-title %}Registro de Clase{% endblock %}
+
+{% block form %}
+    <form method="post" novalidate> 
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-12">
+                {{ form.curso|as_crispy_field }}
+                {{ form.sensei|as_crispy_field }}
+                {{ form.sede|as_crispy_field }}
+            </div>
+        </div>
+
+        <div class="time-inputs">
+            <h4>Horario de la Clase</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Inicio de Clase</h5>
+                    <div class="mb-3">
+                        {{ form.fecha_inicio|as_crispy_field }}
+                        {{ form.hora_inicio|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5>Finalización de Clase</h5>
+                    <div class="mb-3">
+                        {{ form.fecha_cierre|as_crispy_field }}
+                        {{ form.hora_cierre|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                {{ form.horas_semanales|as_crispy_field }}
+                {{ form.precio|as_crispy_field }}
+                {{ form.individual|as_crispy_field }}
+                {{ form.status|as_crispy_field }}
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-lg btn-success">Registrar</button>
+            <a class="btn btn-lg btn-primary ms-2" href="{% url 'inscripciones-create' %}">Inscribir Estudiante</a>
+        </div>
+    </form>
+{% endblock %}

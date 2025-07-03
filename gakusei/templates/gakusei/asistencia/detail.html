@@ -1,0 +1,14 @@
+{% extends 'gakusei/layout.html' %}
+
+{% block body %}
+    <h1>Asistencia {{object}}</h1>
+
+    <a href="{% url 'asistencia' %}">Regresar a la lista</a>
+
+    <ul>
+        <li>Dia de Clase: {{object.dia_clase}}</li>
+        <li>Estudiante:   {{object.estudiante}}</li>
+        <li>Presente:     {{ object.presente|yesno:"Si,No" }}</li>
+    </ul>
+    
+{% endblock %}

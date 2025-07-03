@@ -1,0 +1,30 @@
+{% extends 'gakusei/detail-layout.html' %}
+
+    {% block regresar-url %}{% url 'metodos-pago' %}{% endblock %}
+
+
+    {% block card-title %}{{object}}{% endblock %}
+
+
+    {% block card-body %}
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><span class="fw-bold">Método:</span>          {{ object.metodo }}    </li>
+            <li class="list-group-item"><span class="fw-bold">Datos de Pago:</span>   {{ object.datos }}     </li>
+            <li class="list-group-item"><span class="fw-bold">Observaciones:</span>   {% if object.obs %} {{ object.obs }} {% else %}---{% endif %}       </li>
+        </ul>
+
+
+        <h3>Pagos con {{object}}</h3>
+
+        <ul class="mb-4 list-group">
+            {% for pago in object.pagos.all %}
+                <li class="list-group-item">{{pago}}</li>
+            {% empty %}
+                <li class="list-group-item"><i>No hay pagos hechos con este Método</i></li>
+            {% endfor %}
+        </ul>
+    {% endblock %}
+
+    
+    {% block edit %}{% endblock %}
+    {% block delete %}{% endblock %}

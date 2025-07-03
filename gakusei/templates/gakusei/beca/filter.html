@@ -1,0 +1,43 @@
+{% extends 'gakusei/filter-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+    {% block style %}
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+    {% endblock %}
+
+    {% block script %}
+        <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+        <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+    {% endblock %}
+
+
+    {% block regresar-url %}{% url 'becas' %}{% endblock %}
+
+    {% block card-title %}Buscar Becas{% endblock %}
+
+
+    {% block url-filter-form %}{% url 'becas-filter' %}{% endblock %}
+    {% block url-filter-button %}{% url 'becas-filter' %}{% endblock %}
+    {% block form-filter %}{{ filter.form|crispy }}{% endblock %}
+
+    {% block thead %}
+        <th>Beca</th>
+        <th>Descuento</th>
+        <th></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% for beca in object_list %}
+            <tr>
+                <td>{{beca.nombre}}</td>
+                <td>{{beca.descuento_full}}</td>
+                <td class="text-center align-middle"><a href="{% url 'becas-detail' beca.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

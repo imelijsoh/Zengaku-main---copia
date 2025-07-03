@@ -1,0 +1,32 @@
+{% extends 'gakusei/layout.html' %}
+
+{% block body %}
+
+    <a href="{% url 'index' %}" class="mb-4 btn bg-success-subtle text-reset"><i class="fa-solid fa-angles-left"></i> Regresar al Index</a>
+
+    <h1>Listado de Asistencias</h1>
+
+    <a href="{% url 'asistencia-create' %}"><p>Registrar Asistencia</p></a>
+    <a href="{% url 'asistencia-create-rezagados' %}"><p>Registrar Asistencia de Rezagados</p></a>
+
+
+    <table>
+        <thead>
+            <th>Asistencias</th>
+            <th></th>
+        </thead>
+        <tbody>
+            {% for asistencia in object_list %}
+            <tr>
+                <td>{{asistencia}}</td>
+                <td><a href="{% url 'asistencia-detail' asistencia.id %}">View</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+{% endblock %}

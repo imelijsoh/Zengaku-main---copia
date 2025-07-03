@@ -1,0 +1,34 @@
+{% extends 'gakusei/layout.html' %}
+
+{% block body %}
+
+    <div class="container">
+
+        <a href="{% block regresar-url %}{% endblock %}" class="mb-4 btn bg-success-subtle text-reset"><i class="fa-solid fa-angles-left"></i> {% block regresar-text %}Regresar a la lista{% endblock %}</a>
+    
+        <div class="card">
+
+            <div class="card-body">
+
+                <h1 class="card-title mb-4">{% block card-title %}{% endblock %}</h1>
+            
+                {% block edit %}
+                    <a href="{% block edit-url %}{% endblock %}" class="mb-4 btn btn-lg bg-success-subtle text-reset">{% block edit-text %}Editar{% endblock %}</a>
+                {% endblock %}
+            
+                {% block card-body %}{% endblock %}
+
+
+                {% block delete %}
+                    <h3>{% block delete-title %}Eliminar{% endblock %}</h3>
+                    <a href="{% block delete-url %}{% endblock %}" class="btn btn-lg btn-danger">{% block delete-text %}Eliminar{% endblock %}</a>
+                {% endblock %}
+            
+            </div>
+
+        </div>
+
+
+    </div>
+    
+{% endblock %}

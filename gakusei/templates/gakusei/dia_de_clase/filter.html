@@ -1,0 +1,61 @@
+
+{% extends 'gakusei/filter-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+    {% block style %}
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+    {% endblock %}
+
+    {% block script %}
+        <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+        <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+        <script>
+            $(document).ready(function() {
+                let opciones = {
+                    placeholder: "----------",
+                    allowClear: true,
+                    containerCssClass : 'select form-select',
+                    theme: "bootstrap-5",
+                    width: 'auto',
+                }
+                
+                $("#id_horario__clase").select2(opciones);
+            });
+        </script>
+    {% endblock %}
+
+
+    {% block regresar-url %}{% url 'dia-de-clase' %}{% endblock %}
+
+    {% block card-title %}Buscar Dia de Clase{% endblock %}
+
+
+    {% block url-filter-form %}{% url 'dia-de-clase-filter' %}{% endblock %}
+    {% block url-filter-button %}{% url 'dia-de-clase-filter' %}{% endblock %}
+
+    {% block thead %}
+        <th>N°</th>
+        <th>Clase</th>
+        <th>Status</th>
+        <th>Fecha</th>
+        <th></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% for dia in object_list %}
+            <tr>
+                <td>Clase N° {{dia.numero}}</td>
+                <td>{{dia.clase}}</td>
+                <td>{{dia.status}}</td>
+                <td>{{dia.fecha}}</td>
+                <td class="text-center align-middle"><a href="{% url 'dia-de-clase-detail' dia.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

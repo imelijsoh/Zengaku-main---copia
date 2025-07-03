@@ -1,0 +1,31 @@
+{% extends 'gakusei/detail-layout.html' %}    
+
+    {% block regresar-url %}{% url 'inscripciones' %}{% endblock %}
+
+    {% block card-title %}Inscripción {{object}}{% endblock %}
+
+
+    {% block edit %}
+        {% if inscripciones.clase.status != "Terminada" and inscripciones.clase.status != "Suspendida" %}
+            <a href="{% url 'inscripciones-edit' inscripciones.pk %}" class="mb-4 btn btn-lg bg-success-subtle text-reset"><i class="fs-4 fa-solid fa-pen-to-square"></i> Editar Inscripción</a>
+        {% endif %}
+    {% endblock %}
+
+
+    {% block card-body %}
+
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><a href="{% url 'clase-detail' inscripciones.clase.id %}">
+                <span class="fw-bold">Clase:</span>            {{inscripciones.clase}}        </a>
+            </li>
+            <li class="list-group-item"><a href="{% url 'estudiante-detail' inscripciones.estudiante.id %}">
+                <span class="fw-bold">Estudiante:</span>            {{inscripciones.estudiante}}        </a>
+            </li>
+            <li class="list-group-item"><span class="fw-bold">Precio a pagar:</span>   {{inscripciones.precio_a_pagar}}$  </li>
+        </ul>
+
+    {% endblock %}
+
+
+    {% block delete-title %}Eliminar Inscripción{% endblock %}
+    {% block delete-url %}{% url 'inscripciones-delete' inscripciones.pk %}{% endblock %}

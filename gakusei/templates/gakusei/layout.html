@@ -1,0 +1,43 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title%}Zengaku{%endblock%}</title>
+
+    <link rel="stylesheet" href="{% static 'gakusei/css/bootstrap.css' %}">
+    <script src="{% static 'gakusei/js/bootstrap.bundle.js' %}"></script>
+
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css"> 
+
+    <style>
+        body {
+            background-image: url({% static 'gakusei/img/TRAMADO.png'%});
+        }
+    </style>
+    {% block style %}{% endblock %}
+    {% block script %}{% endblock %}
+</head>
+<body class="">
+    <nav class="navbar bg-body border-bottom">
+        <div class="container">
+            <a href="{% block index-url %}{% url 'index' %}{% endblock %}">
+                <img src="{% static 'gakusei/img/LOGO FUNDACION ZENGAKU 2024.png' %}" alt="Fundación Zengaku" height="50">
+            </a>
+
+            {% block logout %}
+            <a class="btn btn-sm btn-danger" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sessión</a>
+            {% endblock %}
+        </div>
+    </nav>
+
+    <div class="p-3 m-0">
+        {%block body%}
+        {%endblock%}
+    </div>
+</body>
+</html>

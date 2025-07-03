@@ -1,0 +1,57 @@
+{% extends 'gakusei/filter-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            let opciones = {
+                placeholder: "----------",
+                allowClear: true,
+                containerCssClass : 'select form-select',
+                theme: "bootstrap-5",
+                width: 'auto',
+            }
+            
+            $("#id_estudiante").select2(opciones);
+        });
+    </script>
+{% endblock %}
+
+
+    {% block regresar-url %}{% url 'descuento-especial' %}{% endblock %}
+
+    {% block card-title %}Buscar Descuento Especial{% endblock %}
+
+    {% block url-filter-form %}{% url 'descuento-especial-filter' %}{% endblock %}
+    {% block url-filter-button %}{% url 'descuento-especial-filter' %}{% endblock %}
+    {% block form-filter %}{{ filter.form|crispy }}{% endblock %}
+
+
+    {% block thead %}
+        <th>Estudiante</th>
+        <th>Descuento</th>
+        <th></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% for descuento in object_list %}
+            <tr>
+                <td>{{descuento.estudiante}}</td>
+                <td>{{descuento.descuento}}$</td>
+                <td class="text-center align-middle"><a href="{% url 'descuento-especial-detail' descuento.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

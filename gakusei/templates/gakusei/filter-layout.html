@@ -1,0 +1,77 @@
+{% extends 'gakusei/layout.html' %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+
+    <div class="container">
+        
+        {% block regresar %}
+        <a href="{% block regresar-url %}{% endblock %}" class="mb-4 btn bg-success-subtle text-reset"><i class="fa-solid fa-angles-left"></i> {% block regresar-text %}Regresar a la lista{% endblock %}</a>
+        {%endblock%}
+        <div class="card mb-4">
+
+            <div class="card-body">
+                
+                <h1 class="card-title">{% block card-title %}Buscar{% endblock %}</h1>
+                
+                {% block form %}
+                <form method="get" action="{% block url-filter-form %}{% endblock %}#resultados">
+                    {% block form-filter %}{{ filter.form|crispy }}{% endblock %}
+                    
+                
+                    <div class="d-flex align-items-baseline justify-content-between flex-wrap-reverse">
+                        
+                        <button class="btn btn-lg btn-success mt-2" type="submit">Buscar</button>
+                
+                        <a class="btn btn-primary" href="{% block url-filter-button %}{% endblock %}">Limpiar</a>
+                    </div>
+                </form>                
+                {% endblock %}
+
+            </div>
+
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+
+                <h1 class="card-title" id="resultados">Resultados</h1>
+
+                {% block results %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-bordered">
+                            <thead class="table-primary">
+                                {% block thead %}{% endblock %}
+                            </thead>
+                            <tbody>
+                                {% block tbody %}{% endblock %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endblock %}
+            </div>
+
+            <div class="card-footer text-body-secondary">
+                <ul class="pagination justify-content-center mb-0">
+                    
+                    {% if object_list.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1#resultados">&laquo;</a></li>
+                        <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ object_list.previous_page_number }}#resultados">Atrás</a></li>
+                    {% endif %}
+            
+                        <li class="page-item"><span class="page-link">{{ object_list.number }} de {{ object_list.paginator.num_pages }}</span></li>
+            
+            
+                    {% if object_list.has_next %}
+                        <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ object_list.next_page_number }}#resultados">Siguiente</a></li>
+                        <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ object_list.paginator.num_pages }}#resultados">&raquo;</a></li>
+                    {% endif %}
+
+                    
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    
+{% endblock %}

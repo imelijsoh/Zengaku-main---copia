@@ -1,0 +1,28 @@
+{% extends 'gakusei/edit-layout.html' %}    
+{% load crispy_forms_tags %}
+{% load static %}
+
+    {% block style %}
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+    {% endblock %}
+
+    {% block script %}
+        <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+        <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+        <script src="{% static 'gakusei/js/inscripciones/create.js' %}"></script>
+    {% endblock %}
+
+
+    {% block regresar-url %}{% url 'inscripciones-detail' object.pk %}{% endblock %}
+
+    {% block card-title %}Editar Inscripción{% endblock %}
+
+    {% block form %}
+        <form id="inscripciones-form" action="{% url 'inscripciones-edit' object.pk %}" autocomplete="off" data-clase_url="{% url 'api-clase-get' %}" data-estudiante_url="{% url 'api-estudiante-get' %}" method="post"> {%csrf_token%}
+            {{ form|crispy }}
+            <input class="btn btn-lg btn-success" type="submit" value="Guardar Cambios">
+        </form>
+    {% endblock %}
+

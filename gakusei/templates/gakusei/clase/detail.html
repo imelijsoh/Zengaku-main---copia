@@ -1,0 +1,124 @@
+{% extends 'gakusei/detail-layout.html' %}    
+
+{% block regresar-url %}{% url 'clase' %}{% endblock %}
+
+{% block card-title %}Clase {{object}}{% endblock %}
+
+{% block edit-url %}{% url 'clase-edit' clase.pk %}{% endblock %}
+{% block edit-text %}<i class="fs-4 fa-solid fa-pen-to-square"></i> Editar Clase{% endblock %}
+
+{% block card-body %}
+
+    <ul class="mb-4 list-group list-group-flush shadow-sm rounded">
+        <li class="list-group-item"><a href="{% url 'sensei-detail' clase.sensei.id %}">
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><a href="{% url 'sensei-detail' clase.sensei.id %}">
+                                        <span class="fw-bold">Sensei:           </span> {{ clase.sensei }}
+            </a></li>
+            <li class="list-group-item"><span class="fw-bold">Curso:            </span> {{ clase.curso           }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Sede:             </span> {{ clase.sede            }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Horas Semanales:  </span> {{ clase.horas_semanales }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Fecha Inicio:     </span> {{ clase.f_inicio }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Fecha Cierre:     </span> {% if clase.f_cierre %} {{ clase.f_cierre }} {% else %} --- {% endif %}  </li>
+            <li class="list-group-item"><span class="fw-bold">Precio:           </span> {{ clase.precio          }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Clase Individual: </span> {{ clase.individual|yesno:"Si,No" }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Status:           </span> {{ clase.status          }}  </li>
+        </ul>
+
+
+        <h3>Estudiantes</h3>
+
+        {% if clase.status == "Activa" or clase.status == "En Pausa" %}
+            <a class="mb-4 btn bg-success-subtle text-reset" href="{% url 'inscripciones-create' %}?clase={{clase.pk}}">Inscribir Estudiante</a>
+        {% endif %}
+
+        {% if clase.inscripciones.all %}
+            <div class="table-responsive mb-4">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-primary">
+                        <th>Estudiantes Inscriptos</th>
+                        <th>Mensualidad</th>
+                    </thead>
+                    <tbody>
+                        {% for inscripcion in clase.inscripciones.all %}
+                        <tr>
+                            <td><a href="{% url 'estudiante-detail' inscripcion.estudiante.pk %}">{{inscripcion.estudiante}}</a></td>
+                            <td><a href="{% url 'inscripciones-detail' inscripcion.id %}">{{inscripcion.precio_a_pagar}}$</a></td>
+                            <!-- <td><a href="{% url 'inscripciones-edit' inscripcion.id %}">Editar</a></td> -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="mb-4"><i>Sin estudiantes asignados para esta clase.</i></p>
+        {% endif %}
+
+
+        <h3>Horarios</h3>
+
+        {% if clase.status == "Activa" or clase.status == "En Pausa" %}
+            <a class="mb-4 btn bg-success-subtle text-reset" href="{% url 'horario-create' %}?clase={{clase.pk}}">Asignar Horario</a>
+        {% endif %}
+
+        {% if clase.horarios %}
+        <div class="table-responsive mb-4">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="table-primary">
+                    <th>Día</th>
+                    <th>Hora de Entrada</th>
+                    <th>Hora de Salida</th>
+                    <th>Editar</th>
+                </thead>
+                <tbody>
+                    {% for horario in clase.horarios %}
+                    <tr>
+                        <td>{{ horario.dia_semana }}</td>
+                        <td>{{ horario.entrada }}</td>
+                        <td>{{ horario.salida }}</td>
+                        <td class="text-center align-middle"><a href="{% url 'horario-edit' horario.pk %}"><i class="fs-4 fa-solid fa-pen-to-square"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="mb-4"><i>Sin horarios asignados para esta clase.</i></p>
+        {% endif %}
+        
+
+        <h3>Dias de clases</h3>
+
+        {% if clase.status == "Activa" or clase.status == "En Pausa" %}
+            <!-- <a href="">Registrar Asistencia</a> -->
+        {% endif %}
+
+        {% if clase.dias_de_clase %}
+            <div class="table-responsive mb-4">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-primary">
+                        <th>N°</th>
+                        <th>Fecha</th>
+                        <th>Status</th>
+                        <th></th>
+                    </thead>
+                    <tbody>
+                        {% for dia in clase.dias_de_clase %}
+                        <tr>
+                            <td>Clase N° {{dia.numero}}</td>
+                            <td>{{dia.fecha}}</td>
+                            <td>{{dia.status}}</td>
+                            <td class="text-center align-middle"><a href="{% url 'dia-de-clase-detail' dia.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="mb-4"><i>Todavía no se han dado clases en esta Clase.</i></p>
+        {% endif %}
+
+    {% endblock %}
+
+    {% block delete-title %}Eliminar Clase{% endblock %}
+    {% block delete-url %}{% url 'clase-delete' object.pk %}{% endblock %}

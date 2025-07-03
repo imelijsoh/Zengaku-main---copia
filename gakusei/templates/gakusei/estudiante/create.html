@@ -1,0 +1,50 @@
+{% extends 'gakusei/layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+    <script src="{% static 'gakusei/js/estudiante/representante_form.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+
+        <a href="{% url 'estudiante' %}" class="mb-4 btn bg-success-subtle text-reset"><i class="fa-solid fa-angles-left"></i> Regresar a la lista</a>
+        
+
+        <div class="card">
+            <div class="card-body">
+                
+                <h1 class="card-title">Registro de Estudiante</h1>
+                <p class="card-subtitle mb-2 text-body-secondary"><i>* Obligatorio</i></p>
+            
+                <form action="{% url 'estudiante-create' %}" method="post"> {%csrf_token%}
+                    <div id="estudiante-form-fields">
+                        {{ form|crispy }}
+                    </div>
+
+                    <div class="d-flex align-items-baseline justify-content-between flex-wrap-reverse">
+
+                        <input class="btn btn-lg btn-success mt-2" type="submit" value="Registrar">
+    
+                        <a class="btn btn-primary" id="registro-repesentante"
+                            data-representante_url="{% url 'estudiante-create-representante'%}"
+                            data-representante_get="{% url 'api-representantes-get' %}"
+                        >Registrar Nuevo Representante</a>
+                    </div>
+                </form>                
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

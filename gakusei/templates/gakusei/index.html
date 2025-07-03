@@ -1,0 +1,103 @@
+{% extends 'gakusei/layout.html' %}
+{% load static %}
+
+{% block style %}
+    <style>
+        .index_a {
+            display: block;
+            border: 1px solid black;
+        }
+    </style>
+{% endblock %}
+{% block script %}
+    <script src="{% static 'gakusei/js/index.js' %}"></script>
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="container">
+
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title mb-2">Página Principal</h1>
+                <h3 class="card-title mb-4"><i>Bienvenido {{user}}</i></h3>
+
+                <div class="d-grid gap-2 d-md-block mb-4">
+                    <button id="solvencias-generate" data-url="{% url 'api-solvencias-generator' %}" class="btn btn-lg bg-warning border-3 fs-4"><i id="solvencias-i" class="fa-solid fa-gears"></i> Generar Solvencias</button>
+                    <button id="email-send"          class="btn btn-lg bg-info border-3 fs-4"><i id="email-i" class="fa-solid fa-envelopes-bulk"></i> Enviar Correos Recordatorios</button>
+                </div>
+                
+
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 text-center">
+        
+                    {% with clase="index_a p-3 fs-3 text-decoration-none bg-success-subtle text-reset" %}
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'sensei' %}"><i class="fa-solid fa-chalkboard-user"></i> SENSEI</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'estudiante' %}"><i class="fa-solid fa-users"></i> ESTUDIANTES</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}} bg-info" href="{% url 'clase' %}"><i class="fa-solid fa-chalkboard"></i> CLASES</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'horario' %}"><i class="fa-regular fa-clock"></i> HORARIOS</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'inscripciones' %}"><i class="fa-solid fa-book-open"></i> INSCRIPCIONES</a>
+                    </div>
+                
+                
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'dia-de-clase' %}"><i class="fa-solid fa-calendar-days"></i> ASISTENCIAS</a>
+                    </div>
+                    <!-- <div class="col"><a class="{{clase}}" href="{% url 'asistencia' %}">ASISTENCIAS old</a></div> -->
+                
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'pagos' %}"><i class="fa-solid fa-comment-dollar"></i> PAGOS</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'solvencias-clase' %}"><i class="fa-solid fa-receipt"></i> SOLVENCIAS</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'sede' %}"><i class="fa-solid fa-school"></i> SEDES</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'curso' %}"><i class="fa-solid fa-flag"></i> CURSOS</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'metodos-pago' %}"><i class="fa-solid fa-credit-card"></i> METODOS DE PAGO</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'payment_form' %}"><i class="fa-solid fa-credit-card"></i> FACTURAS</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'descuento-especial' %}"><i class="fa-solid fa-money-bill-1-wave"></i> DESCUENTOS</a>
+                    </div>
+                    <div class="col">
+                        <a class="{{clase}}" href="{% url 'becas' %}"><i class="fa-solid fa-graduation-cap"></i> BECAS</a>
+                    </div>
+                    {% if user.is_staff %}
+                    <div class="col">
+                        <a class="{{clase}}" href="/admin"><i class="fa-solid fa-user-tie"></i> ADMIN</a>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast">
+            <div class="d-flex">
+              <div id="toast-text" class="toast-body">
+                No leas esto.
+              </div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+          </div>
+    </div>
+{%endblock%}

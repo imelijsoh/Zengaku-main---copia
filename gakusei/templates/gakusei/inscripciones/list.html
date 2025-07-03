@@ -1,0 +1,30 @@
+{% extends 'gakusei/list-layout.html' %}
+
+    {% block card-title %}Listado de Inscripciones{% endblock %}
+
+    {% block create-url %}{% url 'inscripciones-create' %}{% endblock %}
+    {% block create-text %}Crear Inscripción{% endblock %}
+
+    {% block filter-url %}{% url 'inscripciones-filter' %}{% endblock %}
+
+    {% block thead %}
+        <th>Clase</th>
+        <th>Estudiante</th>
+        <th>Precio a pagar</th>
+        <th></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% for inscripcion in object_list %}
+            <tr>
+                <td>{{inscripcion.clase}}</td>
+                <td>{{inscripcion.estudiante}}</td>
+                <td>{{inscripcion.precio_a_pagar}}$</td>
+                <td class="text-center align-middle"><a href="{% url 'inscripciones-detail' inscripcion.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

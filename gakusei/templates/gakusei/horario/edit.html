@@ -1,0 +1,29 @@
+{% extends 'gakusei/edit-layout.html' %}    
+{% load crispy_forms_tags %}
+{% load static %}
+
+    {% block style %}
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+    {% endblock %}
+
+    {% block script %}
+        <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+        <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+        <script src="{% static 'gakusei/js/horario/create.js' %}"></script>
+    {% endblock %}
+
+
+    {% block regresar-url %}{% url 'horario-detail' horario.pk %}{% endblock %}
+
+
+    {% block card-title %}Edición de Horario{% endblock %}
+
+
+    {% block form %}
+        <form action="{% url 'horario-edit' horario.pk %}" method="post"> {%csrf_token%}
+            {{ form|crispy }}
+            <input class="btn btn-lg btn-success" type="submit" value="Guardar Cambios">
+        </form>
+    {% endblock %}

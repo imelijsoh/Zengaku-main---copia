@@ -1,0 +1,47 @@
+{% extends 'gakusei/filter-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+    <script src="{% static 'gakusei/js/horario/filter.js' %}"></script>
+{% endblock %}
+
+
+{% block regresar-url %}{% url 'horario' %}{% endblock %}
+
+{% block card-title %}Buscar Horario{% endblock %}
+
+{% block url-filter-form %}{% url 'horario-filter' %}{% endblock %}
+{% block url-filter-button %}{% url 'horario-filter' %}{% endblock %}
+
+{% block thead %}
+    <td>Clase</td>
+    <td>Dia</td>
+    <td>H. Entrada</td>
+    <td>H. Salida</td>
+    <td></td>
+{% endblock %}
+
+{% block tbody %}
+    {% for horario in object_list %}
+        <tr>
+            <td>{{horario.clase}}</td>
+            <td>{{horario.dia_semana}}</td>
+            <td>{{horario.entrada}}</td>
+            <td>{{horario.salida}}</td>
+            <td class="text-center align-middle"><a href="{% url 'horario-detail' horario.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center fw-bold fst-italic">Sin Registros</td>
+        </tr>
+    {% endfor %}
+{% endblock %}

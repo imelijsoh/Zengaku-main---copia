@@ -1,0 +1,23 @@
+{% extends 'gakusei/detail-layout.html' %}
+
+
+    {% block regresar-url %}{% url 'descuento-especial' %}{% endblock %}
+
+
+    {% block card-title %}Descuento de {{object.descuento}}$ para {{object.estudiante}}{% endblock %}
+
+
+    {% block edit-url %}{% url 'descuento-especial-edit' object.pk %}{% endblock %}
+    {% block edit-text %}<i class="fs-4 fa-solid fa-pen-to-square"></i> Editar descuento{% endblock %}
+
+
+    {% block card-body %}
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><span class="fw-bold">Estudiante:</span>      {{ object.estudiante }}     </li>
+            <li class="list-group-item"><span class="fw-bold">Descuento:</span>       {{ object.descuento }}$     </li>
+            <li class="list-group-item"><span class="fw-bold">Observaciones:</span>   {% if object.obs %} {{ object.obs }} {% else %}---{% endif %}       </li>
+        </ul>
+    {% endblock %}
+
+    {% block delete-title %}Eliminar Descuento{% endblock %}
+    {% block delete-url %}{% url 'descuento-especial-delete' object.pk %}{% endblock %}

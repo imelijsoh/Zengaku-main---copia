@@ -1,0 +1,16 @@
+{% extends 'gakusei/edit-layout.html' %}    
+{% load crispy_forms_tags %}
+
+    {% block regresar-url %}{% url 'sede-detail' sede.pk %}{% endblock %}
+    {% block regresar-text %}Regresar a la Sede{% endblock %}
+
+
+    {% block card-title %}Registro de Sede{% endblock %}
+
+
+    {% block form %}
+        <form action="{% url 'sede-edit' sede.pk %}" method="post"> {%csrf_token%}
+            {{ form|crispy }}
+            <input class="btn btn-lg btn-success" type="submit" value="Guardar Cambios">
+        </form>
+    {% endblock %}

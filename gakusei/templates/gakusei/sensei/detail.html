@@ -1,0 +1,82 @@
+{% extends 'gakusei/layout.html' %}
+
+{% block body %}
+
+    <div class="container">
+
+        <a href="{% url 'sensei' %}" class="mb-4 btn bg-success-subtle text-reset"><i class="fa-solid fa-angles-left"></i> Regresar a la lista</a>
+    
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title mb-4">Sensei {{sensei.full_name}}</h1>
+            
+                {% if sensei.pk == 1 %}{% else %}
+                <a href="{% url 'sensei-edit' sensei.pk %}" class="mb-4 btn btn-lg bg-success-subtle text-reset"><i class="fa-solid fa-user-pen"></i> Editar Sensei</a>
+                {% endif %}
+            
+                <ul class="mb-4 list-group list-group-flush">
+                    <li class="list-group-item"><span class="fw-bold">Status:</span> {{ sensei.status }}  </li>
+                    <li class="list-group-item"><span class="fw-bold">Cédula:</span> {{ sensei.cedula }}  </li>
+                    <li class="list-group-item"><span class="fw-bold">Primer Nombre:</span> {{ sensei.personal_data.first_name }}      </li>
+                    <li class="list-group-item"><span class="fw-bold">Segundo Nombre:</span> {% if sensei.personal_data.middle_name %}{{ sensei.personal_data.middle_name }}{% else %} <i>---</i> {% endif %}     </li>
+                    <li class="list-group-item"><span class="fw-bold">Primer Apellido:</span> {{ sensei.personal_data.last_name_1 }}     </li>
+                    <li class="list-group-item"><span class="fw-bold">Segundo Apellido:</span> {% if sensei.personal_data.last_name_2 %}{{ sensei.personal_data.last_name_2 }}{% else %} <i>---</i> {% endif %}    </li>
+                    <li class="list-group-item"><span class="fw-bold">Correo Personal:</span> {{ sensei.personal_data.personal_email }}  </li>
+                    <li class="list-group-item"><span class="fw-bold">Telefono Movil:</span> {{ sensei.personal_data.telefono }}         </li>
+            
+                    <li class="list-group-item"><span class="fw-bold">Correo Institucional:</span> {{ sensei.institucional_email }}</li>
+                    <li class="list-group-item"><span class="fw-bold">Nivel de Inglés:</span> {{ sensei.EN_level }}</li>
+                    <li class="list-group-item"><span class="fw-bold">Nivel de Japonés:</span> {{ sensei.JP_level }}</li>
+                </ul>
+            
+            
+                <h3>Clases Activas</h3>
+            
+                {% if sensei.clases_activas %}
+                <ul class="mb-4 list-group">
+                    {% for clase in sensei.clases_activas %}
+                    <a class="list-group-item list-group-item-action" href="{% url 'clase-detail' clase.id %}">{{ clase }}</a>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="mb-4"><i>Sin clases activas para este Sensei.</i></p>
+                {% endif %}
+            
+            
+                <h3>Clases Culminadas</h3>
+            
+                {% if sensei.clases_completadas %}
+                <ul class="mb-4 list-group">
+                    {% for clase in sensei.clases_completadas %}
+                    <a class="list-group-item list-group-item-action" href="{% url 'clase-detail' clase.id %}">{{ clase }}</a>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="mb-4"><i>Sin clases completadas para este Sensei.</i></p>
+                {% endif %}
+            
+            
+                <h3>Clases Suspendidas o Pausadas</h3>
+            
+                {% if sensei.clases_suspendidas_pausa %}
+                <ul class="mb-4 list-group">
+                    {% for clase in sensei.clases_suspendidas_pausa %}
+                    <a class="list-group-item list-group-item-action" href="{% url 'clase-detail' clase.id %}">{{ clase }}</a>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="mb-4"><i>Sin clases suspendidas o pausadas para este Sensei.</i></p>
+                {% endif %}
+
+
+                {% if sensei.pk == 1 %}{% else %}
+                    <h3>Eliminar Sensei</h3>
+                    <a href="{% url 'sensei-delete' sensei.pk %}" class="btn btn-lg btn-danger">Eliminar</a>
+                {% endif %}
+            </div>
+        </div>
+
+
+    </div>
+    
+{% endblock %}

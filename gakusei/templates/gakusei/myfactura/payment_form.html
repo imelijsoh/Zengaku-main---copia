@@ -1,0 +1,130 @@
+{% extends 'gakusei/layout.html' %}
+
+
+{% block body %}
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="bg-white p-4 rounded shadow" style="width: 100%; max-width: 900px;">
+            <h1>Formulario de Pago</h1>
+m            {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error_message }}
+                </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-container">
+                    <div class="form-column">
+                        <div class="form-group">
+                            {{ form.student_name.label_tag }}
+                            {{ form.student_name }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.student_id.label_tag }}
+                            {{ form.student_id }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.amount.label_tag }}
+                            {{ form.amount }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.payment_date.label_tag }}
+                            {{ form.payment_date }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.payment_method.label_tag }}
+                            {{ form.payment_method }}
+                        </div>
+                    </div>
+                    <div class="form-column">
+                        <div class="form-group">
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.issued_by.label_tag }}
+                            {{ form.issued_by }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.reference_code.label_tag }}
+                            {{ form.reference_code }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.payment_concept.label_tag }}
+                            {{ form.payment_concept }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="id_month">Mes cancelado</label>
+                    {{ form.month }}
+                </div>
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container d-flex justify-content-center align-items-center mt-5 mb-5">
+        <div class="bg-white p-4 rounded shadow" style="width: 100%; max-width: 1100px;">
+            <h2>Historial de Pagos</h2>
+            <!-- Dropdown de filtro por letra inicial del estudiante -->
+            <div class="mb-3">
+                <span>Filtrar por estudiante: </span>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if request.GET.letra %}{{ request.GET.letra }}{% else %}A-Z{% endif %}
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item {% if not request.GET.letra %}active{% endif %}" href="?">Todos</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% for letra in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+                      <li><a class="dropdown-item {% if request.GET.letra == letra %}active{% endif %}" href="?letra={{ letra }}">{{ letra }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="table table-striped table-bordered mt-4">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Estudiante</th>
+                            <th>Cédula</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                            <th>Referencia</th>
+                            <th>Concepto</th>
+                            <th>Emitido por</th>
+                            <th>Mes</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pago in historial_pagos %}
+                        <tr>
+                            <td>{{ pago.payment_date }}</td>
+                            <td>{{ pago.student_name }}</td>
+                            <td>{{ pago.student_id }}</td>
+                            <td>{{ pago.amount }}</td>
+                            <td>{{ pago.payment_method }}</td>
+                            <td>{{ pago.reference_code }}</td>
+                            <td>{{ pago.payment_concept }}</td>
+                            <td>{{ pago.issued_by }}</td>
+                            <td>{{ pago.month }}</td>
+                            <td>
+                                <form method="post" action="{% url 'facturapago-delete' pago.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este pago?');">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center">No hay pagos registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

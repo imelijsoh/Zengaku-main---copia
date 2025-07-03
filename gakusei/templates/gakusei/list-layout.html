@@ -1,0 +1,63 @@
+{% extends 'gakusei/layout.html' %}
+
+{% block body %}
+
+    <div class="container">
+
+        <a href="{% block regresar-url %}{% url 'index' %}{% endblock %}" class="mb-4 btn bg-success-subtle text-reset"><i class="fa-solid fa-angles-left"></i> {% block regresar-text %}Regresar al Index{% endblock %}</a>        
+        
+        <div class="card">
+
+            <div class="card-body">
+
+                <h1 class="card-title mb-4">{% block card-title %}Listado{% endblock %}</h1>
+                
+                <div class="d-flex d-md-block justify-content-between">
+                    {% block create %}
+                    <a href="{% block create-url %}{% endblock %}" class="mb-4 btn btn-lg bg-success-subtle text-reset"><i class="fa-solid fa-plus"></i> {% block create-text %}Registrar{% endblock %}</a>
+                    {% endblock %}
+                    {% block filter %}
+                    <a href="{% block filter-url %}{% endblock %}" class="mb-4 btn btn-lg bg-primary-subtle text-reset"><i class="fa-solid fa-magnifying-glass"></i> <span class="d-none d-md-inline">{% block filter-text %}Buscar Registro{% endblock %}</span></a>
+                    {% endblock %}
+                </div>
+                
+                {% block create-otros %}{% endblock %}
+                
+                {% block filters %}{% endblock %}
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-bordered">
+                        <thead class="table-primary">
+                            {% block thead %}{% endblock %}
+                        </thead>
+                        <tbody>
+                            {% block tbody %}{% endblock %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="card-footer text-body-secondary">
+                <ul class="pagination justify-content-center mb-0">
+                    
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Atrás</a></li>
+                    {% endif %}
+            
+                        <li class="page-item"><span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+            
+            
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a></li>
+                    {% endif %}
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+
+        
+{% endblock %}

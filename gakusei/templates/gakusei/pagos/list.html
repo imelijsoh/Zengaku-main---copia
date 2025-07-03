@@ -1,0 +1,69 @@
+{% extends 'gakusei/list-layout.html' %}
+
+{% load pagos_extras %}
+
+    {% block card-title %}Listado de Pagos{% endblock %}
+
+    {% block create-url %}{% url 'pagos-create' %}{% endblock %}
+    {% block create-text %}Registrar Pago{% endblock %}
+
+
+    {% block filter-url %}{% url 'pagos-filter' %}{% endblock %}
+
+
+    {% block thead %}
+        <th>Fecha</th>
+        <th>Estudiante</th>
+        <th>Cédula</th>
+        <th>Monto</th>
+        <th>Método</th>
+        <th>Referencia</th>
+        <th>Concepto</th>
+        <th>Meses Pagados</th>
+        <th>Estado</th>
+        <th></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% now "Y" as current_year %}
+        {% now "m" as current_month %}
+        {% for pago in object_list %}
+            <tr>
+                <td>{{pago.fecha_pago|date:"d/m/Y"}}</td>
+                <td>{{pago.estudiante}}</td>
+                <td>{{pago.estudiante.cedula}}</td>
+                <td>${{pago.monto_pagado}}</td>
+                <td>{{pago.metodo}}</td>
+                <td>{{pago.referencia}}</td>
+                <td>{{pago.obs}}</td>
+                <td>
+                  {% for comprobante in pago.comprobantes.all %}
+                    {{ comprobante.solvencias.mes|date:"F Y" }}{% if not forloop.last %}, {% endif %}
+                  {% empty %}
+                    ---
+                  {% endfor %}
+                </td>
+                <td>
+                  {% with year_month=current_year|stringformat:'s'|add:'-'|add:current_month|stringformat:'s' %}
+                    {% if pago|al_dia:year_month %}
+                      <span style="color:green;font-weight:bold">Al día</span>
+                    {% else %}
+                      <span style="color:red;font-weight:bold">No pagado</span>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+                <td class="text-center align-middle">
+                  <a href="{% url 'pagos-detail' pago.pk %}"><i class="fs-4 fa-solid fa-eye"></i></a>
+                  <a href="{% url 'pagos-delete' pago.pk %}" onclick="return confirm('¿Estás seguro de que deseas eliminar este pago?');" style="color: #dc3545; margin-left: 10px;"><i class="fs-4 fa-solid fa-trash"></i></a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="10" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}
+
+    {% block card-footer %}
+    {{ block.super }}
+    {% endblock %}

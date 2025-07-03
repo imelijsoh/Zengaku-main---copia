@@ -1,0 +1,15 @@
+{% extends 'gakusei/edit-layout.html' %}    
+{% load crispy_forms_tags %}
+
+    {% block regresar-url %}{% url 'curso-detail' curso.pk %}{% endblock %}
+
+
+    {% block card-title %}Edición de Curso{% endblock %}
+
+
+    {% block form %}
+        <form action="{% url 'curso-edit' curso.pk %}" method="post"> {%csrf_token%}
+            {{ form|crispy }}
+            <input class="btn btn-lg btn-success" type="submit" value="Guardar Cambios">
+        </form>
+    {% endblock %}

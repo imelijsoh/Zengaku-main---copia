@@ -1,0 +1,57 @@
+{% extends 'gakusei/filter-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+    {% block style %}
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+    {% endblock %}
+
+    {% block script %}
+        <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+        <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+        <script>
+            $(document).ready(function() {
+                let opciones = {
+                    placeholder: "----------",
+                    allowClear: true,
+                    containerCssClass : 'select form-select',
+                    theme: "bootstrap-5",
+                    width: 'auto',
+                }
+                
+                $("#id_estudiante").select2(opciones);
+                $("#id_beca").select2(opciones);
+            });
+        </script>
+    {% endblock %}
+
+
+    {% block regresar-url %}{% url 'becas' %}{% endblock %}
+
+    {% block card-title %}Buscar Becados{% endblock %}
+
+
+    {% block url-filter-form %}{% url 'becados-filter' %}{% endblock %}
+    {% block url-filter-button %}{% url 'becados-filter' %}{% endblock %}
+
+    {% block thead %}
+        <th>Beca</th>
+        <th>Estudiante</th>
+        <th></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% for becado in object_list %}
+            <tr>
+                <td>{{becado.beca}}</td>
+                <td>{{becado.estudiante}}</td>
+                <td class="text-center align-middle"><a href="{% url 'becas-detail' becado.beca.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

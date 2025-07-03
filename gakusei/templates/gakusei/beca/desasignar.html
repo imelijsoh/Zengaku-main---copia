@@ -1,0 +1,18 @@
+{% extends 'gakusei/delete-layout.html' %}
+
+    {% block regresar-url %}{% url 'becas-detail' object.beca.pk %}{% endblock %}
+
+
+    {% block card-title %}Desasignar Beca{% endblock %}
+
+    {% block delete-mensaje %}
+        <p class="fs-5">¿Seguro que quieres retirar la <span class="fw-bold">Beca <i>{{object.beca}}</i> del Estudiante <i>{{object.estudiante}}</i></span>?</p>
+    {% endblock %}
+
+
+    {% block form %}
+        <form action="{% url 'becas-desasignar' object.pk %}" method="post"> {%csrf_token%}
+            {{ form }}
+            <input class="btn btn-lg btn-danger" type="submit" value="RETIRAR BECA">
+        </form>
+    {% endblock %}

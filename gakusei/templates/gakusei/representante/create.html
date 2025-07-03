@@ -1,0 +1,15 @@
+{% extends 'gakusei/layout.html' %}
+
+{% block body %}
+    <h1>Registro de Representante</h1>
+
+    <a href="{% url 'index' %}">Regresar a la lista</a>
+
+    <form action="{% url 'representante-create' %}" method="post"> {%csrf_token%}
+        <div id="representante-form-fields">
+            {{ form }}
+        </div>
+        <input type="submit" value="Registrar">
+    </form>    
+    
+{% endblock %}

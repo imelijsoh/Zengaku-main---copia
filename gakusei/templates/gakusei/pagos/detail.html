@@ -1,0 +1,166 @@
+{% extends 'gakusei/detail-layout.html' %}
+{% load pagos_extras %}
+
+    {% block regresar-url %}{% url 'pagos' %}{% endblock %}
+
+
+    {% block card-title %}{{object}}{% endblock %}
+
+
+    {% block edit %}{% endblock %}
+    {% block delete %}{% endblock %}
+
+
+    {% block card-body %}
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><span class="fw-bold">Estudiante:</span>     {{object.estudiante     }}</li>
+            <li class="list-group-item"><span class="fw-bold">Clase:</span>          {{object.clase          }}</li>
+            <li class="list-group-item"><span class="fw-bold">Monto pagado:</span>   {{ object.monto_pagado  }}$</li>
+            <li class="list-group-item"><span class="fw-bold">Metodo:</span>         {{ object.metodo        }}</li>
+            <li class="list-group-item"><span class="fw-bold">Referencia:</span>     {{ object.referencia                }}</li>
+            <li class="list-group-item"><span class="fw-bold">Fecha de Pago:</span>  {{ object.fecha_pago|date:"d/m/y"       }}</li>
+            <li class="list-group-item"><span class="fw-bold">Fecha Registro de Pago:</span>  {{ object.fecha|date:"d/m/y f a"       }}</li>
+            <li class="list-group-item"><span class="fw-bold">Observacion:</span>    {% if object.obs %}{{ object.obs }}{% else %}---{% endif %}</li>
+        </ul>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="post" id="meses-form">
+            {% csrf_token %}
+            <input type="hidden" name="pago_id" value="{{ object.id }}">
+            <div class="table-responsive mb-4">
+                <div class="row g-2">
+                    {% for mes in meses_lista %}
+                        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                            <div class="card text-center mb-2 border-0 shadow-sm {% if object.comprobantes.all|mes_pagado:mes %}bg-success text-white{% elif meses_inhabilitados and mes in meses_inhabilitados %}bg-secondary text-white{% else %}bg-light text-muted{% endif %}">
+                                <div class="card-body p-2">
+                                    <span class="fw-bold">{{ mes }}</span><br>
+                                    {% if meses_inhabilitados and mes in meses_inhabilitados %}
+                                        <span class="small text-secondary">Inhabilitado</span>
+                                    {% else %}
+                                        <span class="small">{% if object.comprobantes.all|mes_pagado:mes %}<i class="fa fa-check-circle"></i> Pagado{% else %}<i class="fa fa-times-circle"></i> Pendiente{% endif %}</span>
+                                    {% endif %}
+                                    {% if not object.comprobantes.all|mes_pagado:mes %}
+                                        {% if not meses_inhabilitados or not mes in meses_inhabilitados %}
+                                            <button type="submit" name="marcar_pagado" value="{{ mes }}" class="btn btn-sm btn-outline-success mt-2">Marcar como pagado</button>
+                                        {% endif %}
+                                    {% elif object.comprobantes.all|mes_pagado:mes %}
+                                        <button type="submit" name="desmarcar_pagado" value="{{ mes }}" class="btn btn-sm btn-outline-danger mt-2">Desmarcar como pagado</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+
+        <h3>Mes cancelado</h3>
+        <ul class="mb-4 list-group">
+            {% for comprobante in object.comprobantes.all %}
+                {% if comprobante.solvencias.pagado == 'Pagado' %}
+                    <li class="list-group-item">
+                        {{ comprobante.solvencias.mes|mes_espanol }} {{ comprobante.solvencias.mes|date:"Y" }} ({{ comprobante.monto_aplicado }}$)
+                    </li>
+                {% endif %}
+            {% empty %}
+                <li class="list-group-item">No hay meses cancelados.</li>
+            {% endfor %}
+        </ul>
+        <h3>Control de Pagos (Historial Mensual)</h3>
+        <div class="mb-4">
+            <div class="row g-2">
+                {% for mes in meses_lista %}
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <div class="card text-center mb-2 border-0 shadow-sm {% if object.comprobantes.all|mes_pagado:mes %}bg-success text-white{% elif meses_inhabilitados and mes in meses_inhabilitados %}bg-secondary text-white{% else %}bg-light text-muted{% endif %}">
+                            <div class="card-body p-2">
+                                <span class="fw-bold">{{ mes }}</span><br>
+                                {% if meses_inhabilitados and mes in meses_inhabilitados %}
+                                    <span class="small text-secondary">Inhabilitado</span>
+                                {% else %}
+                                    <span class="small">{% if object.comprobantes.all|mes_pagado:mes %}<i class="fa fa-check-circle"></i> Pagado{% else %}<i class="fa fa-times-circle"></i> Pendiente{% endif %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <h3>Abonos por mes</h3>
+        <!-- Botón para abrir el modal de inhabilitación -->
+        <button type="button" class="btn btn-sm btn-outline-secondary mb-2" data-bs-toggle="modal" data-bs-target="#modalInhabilitarMeses">
+            Inhabilitar meses
+        </button>
+        <!-- Modal para seleccionar meses a inhabilitar -->
+        <div class="modal fade" id="modalInhabilitarMeses" tabindex="-1" aria-labelledby="modalInhabilitarMesesLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form method="post" id="form-inhabilitar-meses">
+                {% csrf_token %}
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalInhabilitarMesesLabel">Selecciona los meses a inhabilitar</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    {% for mes in meses_lista %}
+                      <div class="col-6">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" name="meses_inhabilitados" value="{{ mes }}" id="mesCheck{{ forloop.counter }}"
+                          {% if mes in meses_inhabilitados %}checked{% endif %}>
+                          <label class="form-check-label" for="mesCheck{{ forloop.counter }}">{{ mes }}</label>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% comment %} Lista de meses inhabilitados dinámica {% endcomment %}
+        {% with meses_inhabilitados=meses_inhabilitados|default:"" %}
+        <div class="mb-4">
+            <div class="row g-2">
+                {% for mes in meses_lista %}
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-2">
+                                <span class="fw-bold">{{ mes }}</span><br>
+                                {% if meses_inhabilitados and mes in meses_inhabilitados %}
+                                    <span class="small text-secondary">Inhabilitado</span>
+                                {% else %}
+                                    {% with mes_key=mes %}
+                                        {% for key, solvencia in solvencias_por_mes.items %}
+                                            {% if key == mes_key %}
+                                                {% if solvencia %}
+                                                    <span class="small">Abonado: <b>{{ solvencia.monto_abonado }}$</b> / {{ solvencia.monto_a_pagar }}$</span><br>
+                                                    {% if solvencia.pagado == 'Pagado' %}
+                                                        <span class="badge bg-success">Pagado</span>
+                                                    {% elif solvencia.pagado == 'Abonado' %}
+                                                        <span class="badge bg-warning text-dark">Abonado</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Sin pagar</span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="small text-muted">Sin registro</span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endwith %}
+    {% endblock %}

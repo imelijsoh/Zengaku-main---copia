@@ -1,0 +1,17 @@
+{% extends 'gakusei/delete-layout.html' %}
+
+    {% block regresar-url %}{% url 'estudiante-detail' object.pk %}{% endblock %}
+
+
+    {% block card-title %}Eliminar Estudiante{% endblock %}
+
+    {% block delete-mensaje %}
+        <p class="fs-5">¿Seguro que quieres eliminar al <span class="fw-bold">Estudiante {{estudiante}}</span>?</p>
+    {% endblock %}
+
+    {% block form %}
+    <form action="{% url 'estudiante-delete' object.pk %}" method="post"> {%csrf_token%}
+        {{ form }}
+        <input class="btn btn-lg btn-danger" type="submit" value="ELIMINAR ESTUDIANTE">
+    </form>
+    {% endblock %}

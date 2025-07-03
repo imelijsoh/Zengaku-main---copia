@@ -1,0 +1,151 @@
+{% extends 'gakusei/detail-layout.html' %}
+
+
+    {% block regresar-url %}{% url 'solvencias-clase' %}{% endblock %}
+
+
+    {% block card-title %}Solvencias de {{object}}{% endblock %}
+
+
+    
+    
+    {% block card-body %}
+    
+
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><a href="{% url 'sensei-detail' clase.sensei.id %}">
+                <span class="fw-bold">Sensei:</span>           {{clase.sensei}}                      </a>
+            </li>
+            <li class="list-group-item"><span class="fw-bold">Horas Semanales:</span>  {{clase.horas_semanales}} min.        </li>
+            <li class="list-group-item"><span class="fw-bold">Precio Base:</span>      {{clase.precio}}$                     </li>
+            <li class="list-group-item"><span class="fw-bold">Fecha Inicio:</span>     {{clase.f_inicio}}                    </li>
+            <li class="list-group-item"><span class="fw-bold">Fecha Cierre:</span>     {% if clase.f_cierre %}{{clase.f_cierre}} {% else %} <i>Sin fecha de cierre.</i> {% endif %}    </li>
+        </ul>
+
+
+        <h3>Solvencias</h3>
+
+        {% comment %} Reagrupa la variable 'solvencias' por la key 'estudiante' y lo devuelve como un tuple (estudiante, lista_de_solvencias) llamado sol_list. {% endcomment %}
+        {% regroup solvencias by estudiante as sol_list %}
+
+        {% for estudiante, solvencias in sol_list %}
+
+            <div class="table-responsive mb-4">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-primary">
+                        <tr>
+                            <th colspan="4">{{ estudiante.full_name }}</th>
+                        </tr>
+                        <tr>
+                            <th>Mes</th>
+                            <th>Status</th>
+                            <th>Precio</th>
+                            <th>Abonado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for solvencia in solvencias %}
+                            <tr>
+                                <td
+                                    {% if solvencia.pagado == 'Pagado' %}
+                                    class="bg-info-subtle"
+                                    {% elif solvencia.pagado == 'Abonado' %}
+                                    class="bg-warning-subtle"
+                                    {% elif solvencia.pagado == 'Sin Pagar' %}
+                                    class="bg-danger-subtle"
+                                    {% endif %}
+                                >{{solvencia.mes|date:"M. Y"}}</td>
+
+                                <td
+                                    {% if solvencia.pagado == 'Pagado' %}
+                                    class="bg-info-subtle"
+                                    {% elif solvencia.pagado == 'Abonado' %}
+                                    class="bg-warning-subtle"
+                                    {% elif solvencia.pagado == 'Sin Pagar' %}
+                                    class="bg-danger-subtle"
+                                    {% endif %}
+                                >{{solvencia.pagado}}</td>
+
+                                <td
+                                    {% if solvencia.pagado == 'Pagado' %}
+                                    class="bg-info-subtle"
+                                    {% elif solvencia.pagado == 'Abonado' %}
+                                    class="bg-warning-subtle"
+                                    {% elif solvencia.pagado == 'Sin Pagar' %}
+                                    class="bg-danger-subtle"
+                                    {% endif %}
+                                >{{solvencia.monto_a_pagar}}$</td>
+
+                                <td
+                                    {% if solvencia.pagado == 'Pagado' %}
+                                    class="bg-info-subtle"
+                                    {% elif solvencia.pagado == 'Abonado' %}
+                                    class="bg-warning-subtle"
+                                    {% elif solvencia.pagado == 'Sin Pagar' %}
+                                    class="bg-danger-subtle"
+                                    {% endif %}
+                                >{{solvencia.monto_abonado}}$</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% empty %}
+
+        <p class="mb-4"><i>Sin solvencias registradas.</i></p>
+
+        {% endfor %}
+
+
+
+        {% comment %}
+
+            {% if clase.inscripciones.all %}
+            
+            
+                {% for estudiante in clase.inscripciones.all %}
+                <table border="1">
+                    <tr>
+                        <th colspan="4">{{ estudiante.estudiante.full_name }}</th>
+                    </tr>
+                    <tr>
+                        <th>Mes</th>
+                        <th>Status</th>
+                        <th>Precio</th>
+                        <th>Abonado</th>
+                    </tr>
+                    
+                    {% for solvencia in estudiante.estudiante.solvencias.all %}
+                        {% if object == solvencia.clase %}
+                            <tr 
+                                {% if solvencia.pagado == 'Pagado' %}
+                                style="background-color:lightblue"
+                                {% elif solvencia.pagado == 'Abonado' %}
+                                style="background-color:lightyellow"
+                                {% elif solvencia.pagado == 'Sin Pagar' %}
+                                style="background-color:pink"
+                                {% endif %}
+                            >
+                                <td>{{solvencia.mes|date:"M. Y"}}</td>
+                                <td>{{solvencia.pagado}}</td>
+                                <td>{{solvencia.monto_a_pagar}}$</td>
+                                <td>{{solvencia.monto_abonado}}$</td>
+                            </tr>
+                        {% endif %} 
+                    {% endfor %}
+                </table> <br>
+                {% endfor %}
+            
+            
+            {% endif %}
+
+        {% endcomment %}
+
+
+
+    {% endblock %}
+    
+    
+    {% block edit %}{% endblock %}
+    {% block delete %}{% endblock %}

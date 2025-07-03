@@ -1,0 +1,27 @@
+{% extends 'gakusei/list-layout.html' %}
+
+    {% block card-title %}Listado de Cursos{% endblock %}
+
+    {% block create-url %}{% url 'curso-create' %}{% endblock %}
+    {% block create-text %}Registrar Curso{% endblock %}
+
+    {% block filter %}{% endblock %}
+
+
+    {% block thead %}
+        <th>Módulo</th>
+        <th style="width: 10%;"></th>
+    {% endblock %}
+    
+    {% block tbody %}
+        {% for curso in object_list %}
+            <tr>
+                <td>{{curso}}</td>
+                <td class="text-center align-middle"><a href="{% url 'curso-detail' curso.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

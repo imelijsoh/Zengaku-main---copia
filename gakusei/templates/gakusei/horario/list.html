@@ -1,0 +1,214 @@
+{% extends 'gakusei/list-layout.html' %}
+
+{% block card-title %}Listado de Horarios{% endblock %}
+
+{% block create-url %}{% url 'horario-create' %}{% endblock %}
+{% block create-text %}Registrar Horario{% endblock %}
+
+{% block filter-url %}{% url 'horario-filter' %}{% endblock %}
+
+{% block thead %}
+<tr>
+    <th>Lunes</th>
+    <th>Martes</th>
+    <th>Miercoles</th>
+    <th>Jueves</th>
+    <th>Viernes</th>
+    <th>Sábado</th>
+    <th>Domingo</th>
+</tr>
+{% endblock %}
+
+{% block tbody %}
+<tr>
+    <td>
+        {% if horarios_lunes %}
+            <ul class="list-group">
+                {% for horario in horarios_lunes %}
+                <li class="list-group-item">
+                    <strong>Clase:</strong> {{ horario.clase }}<br>
+                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
+                    <strong>Salida:</strong> {{ horario.salida }}<br>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </a>
+                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
+                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Sin clases programadas</p>
+        {% endif %}
+    </td>
+    <td>
+        {% if horarios_martes %}
+            <ul class="list-group">
+                {% for horario in horarios_martes %}
+                <li class="list-group-item">
+                    <strong>Clase:</strong> {{ horario.clase }}<br>
+                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
+                    <strong>Salida:</strong> {{ horario.salida }}<br>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </a>
+                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
+                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Sin clases programadas</p>
+        {% endif %}
+    </td>
+    <td>
+        {% if horarios_miercoles %}
+            <ul class="list-group">
+                {% for horario in horarios_miercoles %}
+                <li class="list-group-item">
+                    <strong>Clase:</strong> {{ horario.clase }}<br>
+                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
+                    <strong>Salida:</strong> {{ horario.salida }}<br>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </a>
+                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
+                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Sin clases programadas</p>
+        {% endif %}
+    </td>
+    <td>
+        {% if horarios_jueves %}
+            <ul class="list-group">
+                {% for horario in horarios_jueves %}
+                <li class="list-group-item">
+                    <strong>Clase:</strong> {{ horario.clase }}<br>
+                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
+                    <strong>Salida:</strong> {{ horario.salida }}<br>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </a>
+                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
+                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Sin clases programadas</p>
+        {% endif %}
+    </td>
+    <td>
+        {% if horarios_viernes %}
+            <ul class="list-group">
+                {% for horario in horarios_viernes %}
+                <li class="list-group-item">
+                    <strong>Clase:</strong> {{ horario.clase }}<br>
+                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
+                    <strong>Salida:</strong> {{ horario.salida }}<br>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </a>
+                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
+                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Sin clases programadas</p>
+        {% endif %}
+    </td>
+    <td>
+        {% if horarios_sábado %}
+            <ul class="list-group">
+                {% for horario in horarios_sábado %}
+                <li class="list-group-item">
+                    <strong>Clase:</strong> {{ horario.clase }}<br>
+                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
+                    <strong>Salida:</strong> {{ horario.salida }}<br>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </a>
+                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
+                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Sin clases programadas</p>
+        {% endif %}
+    </td>
+    <td>
+        {% if horarios_domingo %}
+            <ul class="list-group">
+                {% for horario in horarios_domingo %}
+                <li class="list-group-item">
+                    <strong>Clase:</strong> {{ horario.clase }}<br>
+                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
+                    <strong>Salida:</strong> {{ horario.salida }}<br>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </a>
+                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
+                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Sin clases programadas</p>
+        {% endif %}
+    </td>
+</tr>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'gakusei/layout.html' %}
+
+{% block body %}
+
+    <div class="container">
+
+        <a href="{% block regresar-url %}{% endblock %}" class="mb-4 btn bg-success-subtle text-reset"><i class="fa-solid fa-angles-left"></i> {% block regresar-text %}Regresar sin guardar{% endblock %}</a>
+        
+        <div class="card">
+
+            <div class="card-body">
+
+                <h1 class="card-title">{% block card-title %}Edición{% endblock %}</h1>
+                <p class="card-subtitle mb-2 text-body-secondary">{% block card-sub-title %}<i>* Obligatorio</i>{% endblock %}</p>
+
+                {% block form %}
+                {% endblock %}
+
+                {% block otros %}
+                {% endblock %}
+
+            </div>
+
+        </div>
+    
+    </div>
+    
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'gakusei/detail-layout.html' %}
+
+    {% block regresar-url %}{% url 'curso' %}{% endblock %}
+
+
+    {% block card-title %}Curso {{curso}}{% endblock %}
+
+    {% block edit-url %}{% url 'curso-edit' curso.pk %}{% endblock %}
+    {% block edit-text %}<i class="fs-4 fa-solid fa-pen-to-square"></i> Editar Curso{% endblock %}
+
+
+    {% block card-body %}
+
+    
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><span class="fw-bold">Módulo:</span> {{ curso.modulo }}</li>
+        </ul>
+
+
+
+        <h3>Clases Activas</h3>
+
+        {% if curso.clases_activas %}
+        <ul class="mb-4 list-group">
+            {% for clase in curso.clases_activas %}
+            <a class="list-group-item list-group-item-action" href="{% url 'clase-detail' clase.id %}">{{ clase }}</a>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="mb-4"><i>Sin clases activas para este curso.</i></p>
+        {% endif %}
+
+
+        <h3>Clases Culminadas</h3>
+
+        {% if curso.clases_completadas %}
+        <ul class="mb-4 list-group">
+            {% for clase in curso.clases_completadas %}
+            <a class="list-group-item list-group-item-action" href="{% url 'clase-detail' clase.id %}">{{ clase }}</a>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="mb-4"><i>Sin clases completadas para este curso.</i></p>
+        {% endif %}
+
+
+        <h3>Clases Suspendidas o Pausadas</h3>
+
+        {% if curso.clases_suspendidas_pausa %}
+        <ul class="mb-4 list-group">
+            {% for clase in curso.clases_suspendidas_pausa %}
+            <a class="list-group-item list-group-item-action" href="{% url 'clase-detail' clase.id %}">{{ clase }}</a>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="mb-4"><i>Sin clases suspendidas o pausadas para este curso.</i></p>
+        {% endif %}
+
+
+
+    {% endblock %}
+
+    {% block delete %}{% endblock %}

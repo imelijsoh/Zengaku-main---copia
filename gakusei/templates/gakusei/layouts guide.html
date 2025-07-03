@@ -1,0 +1,240 @@
+<!-- LIST -->
+{% extends 'gakusei/list-layout.html' %}
+
+    {% block regresar-url %}    {% endblock %}
+    {% block regresar-text %}   {% endblock %}
+
+    {% block card-title %}  {% endblock %}
+
+    {% block create %}  {% endblock %}
+    {% block create-url %}  {% endblock %}
+    {% block create-text %} {% endblock %}
+
+    {% block filter %}  {% endblock %}
+    {% block filter-url %}  {% endblock %}
+    {% block filter-text %} {% endblock %}
+
+    {% block create-otros %}    {% endblock %}
+
+    {% block thead %}   {% endblock %}
+    {% block tbody %}   {% endblock %}
+
+    <!-- View Button Style -->
+    <td class="text-center align-middle"><a href=""><i class="fs-4 fa-solid fa-eye"></i></a></td>
+    <i class="fs-4 fa-solid fa-eye"></i>
+    class="text-center align-middle"
+
+
+
+<!-- CREATE -->
+{% extends 'gakusei/create-layout.html' %}
+{% load crispy_forms_tags %}
+
+
+    {% block regresar %}    {% endblock %}
+    {% block regresar-url %}    {% endblock %}
+    {% block regresar-text %}   {% endblock %}
+
+    {% block card-title %}  {% endblock %}
+    {% block card-sub-title %}  {% endblock %}
+
+    {% block form %}    {% endblock %}
+
+    {% block otros %}   {% endblock %}
+
+    <!-- Submit Button Style -->
+    <input class="btn btn-lg btn-success" type="submit" value="Registrar">
+
+
+
+<!-- DETAIL -->
+{% extends 'gakusei/detail-layout.html' %}
+
+    {% block regresar-url %}    {% endblock %}
+    {% block regresar-text %}   {% endblock %}
+
+
+    {% block card-title %}  {% endblock %}
+
+
+    {% block edit %}    {% endblock %}
+    {% block edit-url %}    {% endblock %}
+    {% block edit-text %}   {% endblock %}
+
+
+    {% block card-body %}
+
+    {% endblock %}
+
+    
+    {% block delete %}    {% endblock %}
+    {% block delete-title %}    {% endblock %}
+    {% block delete-url %}  {% endblock %}
+
+    <!-- Main Data Style -->
+    <ul class="mb-4 list-group list-group-flush">
+        <li class="list-group-item"><span class="fw-bold">Xxxxxx:</span> {{ XXXX.xxxx }}  </li>
+    </ul>
+
+    <!-- List Link Style -->
+    <ul class="mb-4 list-group">
+        <a class="list-group-item list-group-item-action" href="{% url 'xxx-xxx' xxx.id %}">{{ xxx }}</a>
+    </ul>
+
+    <!-- Table Style -->
+    <div class="table-responsive mb-4">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-primary">
+                <th>XXX</th>
+            </thead>
+            <tbody>
+                {% for i in XXX %}
+                <tr>
+                    <td></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Else -->
+    class="mb-4"
+    <p class="mb-4"><i>No i en XXX.</i></p>
+
+    <!-- Generic Edit Icon -->
+    <i class="fs-4 fa-solid fa-pen-to-square"></i>
+    
+
+<!-- EDIT -->
+{% extends 'gakusei/edit-layout.html' %}    
+{% load crispy_forms_tags %}
+
+    {% block regresar-url %}    {% endblock %}
+    {% block regresar-text %}   {% endblock %}
+
+
+    {% block card-title %}  {% endblock %}
+    {% block card-sub-title %}  {% endblock %}
+
+
+    {% block form %}    {% endblock %}
+
+
+    {% block otros %}   {% endblock %}
+
+    <!-- Edit Button Style -->
+    <input class="btn btn-lg btn-success" type="submit" value="Guardar Cambios">
+
+
+<!-- DELETE -->
+{% extends 'gakusei/delete-layout.html' %}
+
+    {% block regresar-url %}    {% endblock %}
+    {% block regresar-text %}   {% endblock %}
+
+
+    {% block card-title %}  {% endblock %}
+    {% block delete-mensaje %}  {% endblock %}
+
+
+    {% block form %}    {% endblock %}
+
+    
+    <!-- Delete Mesage Style -->
+    <p class="fs-5">¿Seguro que quieres eliminar al <span class="fw-bold">Xxxxx {{object}}</span>?</p>
+    
+    <!-- Delete Button Style -->
+    <input class="btn btn-lg btn-danger" type="submit" value="ELIMINAR XXXX">
+
+
+<!-- Select2 Configuration -->
+    let opciones = {
+        placeholder: "----------",
+        allowClear: true,
+        containerCssClass : 'select form-select',
+        theme: "bootstrap-5",
+        width: 'auto',
+    }
+
+
+<!-- FILTER -->
+
+<!-- For List.html -->
+{% block filter-url %}{% url 'XXX-filter' %}{% endblock %}
+
+
+{% extends 'gakusei/filter-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            let opciones = {
+                placeholder: "----------",
+                allowClear: true,
+                containerCssClass : 'select form-select',
+                theme: "bootstrap-5",
+                width: 'auto',
+            }
+            
+            $("#id_XXX").select2(opciones);
+        });
+    </script>
+{% endblock %}
+
+
+{% block regresar-url %}    {% endblock %}
+{% block regresar-text %}   {% endblock %}
+
+{% block card-title %}Buscar {% endblock %}
+
+
+{% block form %}
+
+{% endblock %}
+
+{% url 'XXX-filter' %}
+{% block url-filter-form %}  {% endblock %}
+{% block url-filter-button %}  {% endblock %}
+{% block form-filter %}{{ filter.form|crispy }}{% endblock %}
+
+<form method="get" action="{% url 'XXX-filter' %}#resultados">
+    {{ filter.form|crispy }}
+
+    <div class="d-flex align-items-baseline justify-content-between flex-wrap-reverse">
+        
+        <button class="btn btn-lg btn-success mt-2" type="submit">Buscar</button>
+
+        <a class="btn btn-primary" href="{% url 'XXX-filter' %}">Limpiar</a>
+    </div>
+</form>
+
+
+{% block results %}
+
+{% endblock %}
+
+
+{% block thead %}
+
+{% endblock %}
+
+
+{% block tbody %}
+
+{% endblock %}
+
+    {% empty %}
+        <tr>
+            <td colspan="6" class="text-center fw-bold fst-italic">Sin Resultados</td>
+        </tr>
+    {% endfor %}

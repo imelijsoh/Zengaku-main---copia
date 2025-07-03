@@ -1,0 +1,13 @@
+{% extends 'gakusei/create-layout.html' %}
+{% load crispy_forms_tags %}
+
+    {% block regresar-url %}{% url 'metodos-pago' %}{% endblock %}
+
+    {% block card-title %}Registro de Método de Pago{% endblock %}
+
+    {% block form %}
+        <form action="{% url 'metodos-pago-create' %}" method="post"> {%csrf_token%}
+            {{ form|crispy }}
+            <input class="btn btn-lg btn-success" type="submit" value="Registrar">
+        </form>
+    {% endblock %}

@@ -1,0 +1,68 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zengaku</title>
+
+    <link rel="stylesheet" href="{% static 'gakusei/css/bootstrap.css' %}">
+    <script src="{% static 'gakusei/js/bootstrap.bundle.js' %}"></script>
+
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css"> 
+
+    <style>
+        body {
+            background-image: url({% static 'gakusei/img/TRAMADO.png'%});
+        }
+    </style>
+</head>
+<body class="">
+    <nav class="navbar bg-body border-bottom">
+        <div class="container">
+            <img src="{% static 'gakusei/img/LOGO FUNDACION ZENGAKU 2024.png' %}" alt="Fundación Zengaku" height="50">
+        </div>
+    </nav>
+
+    <div class="p-3 m-0">
+        
+            
+        <div class="container">
+
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title mb-4">Iniciar Sessión</h1>
+
+                        {% if message %}
+                            <div class="bg-danger rounded-2 p-2 fs-5 mb-4 text-white text-center">{{ message }}</div>
+                        {% endif %}
+
+                        <form action="{% url 'login' %}" method="post"> {% csrf_token %}
+
+                            <div class="form-group">
+                                <div class="mb-3">
+                                    <label for="usuario" class="form-label fs-4">Usuario</label>
+                                    <input class="form-control-lg w-100" type="text" name="username" placeholder="Usuario" id="usuario" required="" autofocus>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="usuario" class="form-label fs-4">Contraseña</label>
+                                    <input class="form-control-lg w-100" type="password" name="password" placeholder="Contraseña" id="password">
+                                </div>
+
+                            </div>
+
+                            <input class="btn btn-primary btn-lg mt-2" type="submit" value="Ingresar">
+                        </form>
+                </div>
+            </div>
+            
+                
+        </div>
+        
+
+    </div>
+</body>
+</html>

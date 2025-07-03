@@ -1,0 +1,45 @@
+{% extends 'gakusei/create-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#id_estudiantes').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Seleccione estudiantes',
+            });
+            $('#id_clase').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Seleccione clase',
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block regresar-url %}
+    {% url 'inscripciones' %}
+{% endblock %}
+
+{% block regresar-text %}
+    Regresar a la lista
+{% endblock %}
+
+{% block card-title %}Nueva Inscripción Múltiple{% endblock %}
+
+{% block form %}
+    <form id="multiple-inscripciones-form" action="{% url 'inscripciones-create-multiple' %}" autocomplete="off" method="post"> {% csrf_token %}
+        {{ form|crispy }}
+        <input class="btn btn-lg btn-success" type="submit" value="Registrar">
+    </form>
+{% endblock %}

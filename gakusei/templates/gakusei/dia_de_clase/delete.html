@@ -1,0 +1,20 @@
+{% extends 'gakusei/delete-layout.html' %}    
+
+
+    {% block regresar-url %}{% url 'dia-de-clase-detail' object.pk %}{% endblock %}
+
+
+    {% block card-title %}Eliminar Dia de Clase{% endblock %}
+
+    {% block delete-mensaje %}
+        <p class="fs-5">¿Seguro que quieres eliminar el <span class="fw-bold">Dia de {{object}}</span>?</p>
+        <p>Se eliminarán todas las <u>Asistencias</u> relacionadas con este Dia de Clase.</p>
+    {% endblock %}
+
+
+    {% block form %}
+        <form action="{% url 'dia-de-clase-delete' object.pk %}" method="post"> {%csrf_token%}
+            {{ form }}
+            <input class="btn btn-lg btn-danger" type="submit" value="ELIMINAR DIA DE CLASE">
+        </form>
+    {% endblock %}

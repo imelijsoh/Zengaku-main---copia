@@ -1,0 +1,38 @@
+{% extends 'gakusei/edit-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+    <script src="{% static 'gakusei/js/estudiante/representante_form.js' %}"></script>
+{% endblock %}
+
+
+    {% block regresar-url %}{% url 'estudiante-detail' estudiante.pk %}{% endblock %}
+
+
+    {% block card-title %}Edición de Estudiante{% endblock %}
+
+
+    {% block form %}<form action="{% url 'estudiante-edit' estudiante.pk %}" method="post"> {%csrf_token%}
+        <div id="estudiante-form-fields">
+            {{ form|crispy }}
+        </div>
+        
+        <div class="d-flex align-items-baseline justify-content-between flex-wrap-reverse">
+
+            <input class="btn btn-lg btn-success mt-2" type="submit" value="Guardar Cambios">
+
+            <a class="btn btn-primary" id="registro-repesentante"
+                data-representante_url="{% url 'estudiante-create-representante'%}"
+                data-representante_get="{% url 'api-representantes-get' %}"
+            >Registrar Nuevo Representante</a>
+        </div>
+    </form>{% endblock %}

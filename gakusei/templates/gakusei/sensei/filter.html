@@ -1,0 +1,62 @@
+{% extends 'gakusei/filter-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+{% endblock %}
+
+
+
+{% block regresar-url %}{% url 'sensei' %}{% endblock %}
+
+
+{% block card-title %}Buscar Sensei{% endblock %}
+
+{% block form %}
+	<form method="get" action="{% url 'sensei-filter' %}#resultados">
+		{{ filter.form|crispy }}
+
+		<div class="d-flex align-items-baseline justify-content-between flex-wrap-reverse">
+			
+			<button class="btn btn-lg btn-success mt-2" type="submit">Buscar</button>
+
+			<a class="btn btn-primary" href="{% url 'sensei-filter' %}">Limpiar</a>
+		</div>
+	</form>
+{% endblock %}
+
+
+
+{% block thead %}
+	<th>Cédula</th>
+	<th>Nombre Completo</th>
+	<th>Nivel JP</th>
+	<th>Nivel EN</th>
+	<th>Telefono</th>
+	<th></th>
+{% endblock %}
+
+{% block tbody %}
+	{% for sensei in object_list %}
+		<tr>
+			<td>{{sensei.cedula}}</td>
+			<td>{{sensei.full_name}}</td>
+			<td>{{sensei.JP_level}}</td>
+			<td>{{sensei.EN_level}}</td>
+			<td>{{sensei.personal_data.telefono}}</td>
+			<td class="text-center align-middle"><a href="{% url 'sensei-detail' sensei.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+		</tr>
+	{% empty %}
+		<tr>
+			<td colspan="6" class="text-center fw-bold fst-italic">Sin Resultados</td>
+		</tr>
+	{% endfor %}
+{% endblock %}
+

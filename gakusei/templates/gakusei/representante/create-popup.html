@@ -1,0 +1,24 @@
+{% extends 'gakusei/create-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+    {% block index-url %}{% endblock %}
+    {% block logout %}{% endblock %}
+
+    {% block script %}
+        <script src="{% static 'gakusei/js/estudiante/representante_popup.js' %}"></script>
+    {% endblock %}
+
+    {% block regresar %}{% endblock %}
+
+
+    {% block card-title %}Registro de Representante{% endblock %}
+
+    {% block form %}
+    <form id="representante-form" action="{% url 'estudiante-create-representante' %}" method="post"> {%csrf_token%}
+        <div id="representante-form-fields">
+            {{ form|crispy }}
+        </div>
+        <input class="btn btn-lg btn-success" type="submit" value="Registrar">
+    </form>    
+    {% endblock %}

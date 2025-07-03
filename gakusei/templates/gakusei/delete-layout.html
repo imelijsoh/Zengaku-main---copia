@@ -1,0 +1,25 @@
+{% extends 'gakusei/layout.html' %}
+
+{% block body %}
+
+    <div class="container">
+
+        <a href="{% block regresar-url %}{% endblock %}" class="mb-4 btn bg-success-subtle text-reset"><i class="fa-solid fa-angles-left"></i> {% block regresar-text %}Regresar{% endblock %}</a>
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h1 class="card-title">{% block card-title %}Eliminar{% endblock %}</h1>
+            
+                {% block delete-mensaje %}<p class="fs-5">¿Seguro que quieres eliminar?</p>{% endblock %}
+
+                {% block form %}{% endblock %}
+
+            </div>
+
+        </div>
+        
+    </div>
+    
+{% endblock %}

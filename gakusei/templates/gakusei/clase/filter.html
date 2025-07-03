@@ -1,0 +1,70 @@
+{% extends 'gakusei/filter-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+    <script src="{% static 'gakusei/js/clase/create.js' %}"></script>
+{% endblock %}
+
+
+{% block regresar-url %}{% url 'clase' %}{% endblock %}
+
+{% block card-title %}Buscar Clase{% endblock %}
+
+
+{% block url-filter-form %}{% url 'clase-filter' %}{% endblock %}
+{% block url-filter-button %}{% url 'clase-filter' %}{% endblock %}
+
+
+    {% block thead %}
+        <th>Curso</th>
+        <th>Sensei</th>
+        <th>Sede</th>
+        <th>Horas Semanales</th>
+        <th>Estudiantes</th>
+        <th>Fecha de Inicio</th>
+        <th>Status</th>
+        <th>Precio</th>
+        <th></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% for clase in object_list %}
+            <tr>
+                <td>{{clase.curso}}</td>
+                <td>{{clase.sensei.full_name}}</td>
+                <td>{{clase.sede}}</td>
+                <td>{{clase.horas_semanales}}</td>
+                <td>{{clase.inscripciones.count}}</td>
+                <td>
+                    {{ clase.f_inicio|date:"d M. y" }}
+                </td>
+                <td>{{clase.status}}</td>
+                <td>${{clase.precio}}</td>
+                <td class="text-center align-middle">
+                    <a href="{% url 'clase-detail' clase.id %}" class="btn btn-outline-primary btn-sm me-2" title="Ver">
+                        <i class="fs-5 fa-solid fa-eye"></i>
+                    </a>
+                    <form action="{% url 'clase-delete' clase.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
+                            onclick="return confirm('¿Seguro que deseas eliminar esta clase?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="9" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

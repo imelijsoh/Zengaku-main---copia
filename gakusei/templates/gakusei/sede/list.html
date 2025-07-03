@@ -1,0 +1,28 @@
+{% extends 'gakusei/list-layout.html' %}
+
+    {% block card-title %}Listado de Sedes{% endblock %}
+
+    {% block create-url %}{% url 'sede-create' %}{% endblock %}
+    {% block create-text %}Registrar Sede{% endblock %}
+
+    {% block filter %}{% endblock %}
+
+    {% block thead %}
+        <th>Nombre</th>
+        <th>Ubicación</th>
+        <th></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% for sede in object_list %}
+            <tr>
+                <td>{{sede.nombre}}</td>
+                <td>{{sede.ubicacion}}</td>
+                <td class="text-center align-middle"><a href="{% url 'sede-detail' sede.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

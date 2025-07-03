@@ -1,0 +1,28 @@
+{% extends 'gakusei/layout.html' %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+
+    <div class="container">
+
+        <a href="{% url 'sensei-detail' sensei.pk %}" class="mb-4 btn bg-success-subtle text-reset"><i class="fa-solid fa-angles-left"></i> Regresar al Sensei</a>
+        
+        <div class="card">
+
+            <div class="card-body">
+
+                <h1 class="card-title">Edición de Sensei</h1>
+                <p class="card-subtitle mb-2 text-body-secondary"><i>* Obligatorio</i></p>
+
+                <form action="{% url 'sensei-edit' sensei.pk %}" method="post"> {%csrf_token%}
+                    {{ form|crispy }}
+                    <input class="btn btn-lg btn-success" type="submit" value="Guardar Cambios">
+                </form>
+
+            </div>
+
+        </div>
+    
+    </div>
+    
+{% endblock %}

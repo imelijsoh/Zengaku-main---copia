@@ -1,0 +1,41 @@
+{% extends 'gakusei/detail-layout.html' %}    
+
+    {% block regresar-url %}{% url 'horario' %}{% endblock %}
+
+
+    {% block card-title %}Horario {{object}}{% endblock %}
+
+
+    {% block edit-url %}{% url 'horario-edit' horario.pk %}{% endblock %}
+    {% block edit-text %}<i class="fs-4 fa-solid fa-pen-to-square"></i> Editar Horario{% endblock %}
+
+
+    {% block card-body %}
+
+        <ul class="mb-4 list-group list-group-flush">
+            <li class="list-group-item"><a href="{% url 'clase-detail' horario.clase.id %}">
+                <span class="fw-bold">Clase:</span>             {{ horario.clase }}  
+            </a></li>
+            <li class="list-group-item"><span class="fw-bold">Dia:</span>               {{ horario.dia_semana }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Hora de Entrada:</span>   {{ horario.entrada }}  </li>
+            <li class="list-group-item"><span class="fw-bold">Hora de Salida:</span>    {{ horario.salida }}  </li>
+        </ul>
+
+
+        <h3>Dias de clases en este horario</h3>
+
+        {% if horario.dias_de_clase.all %}
+        <ul class="mb-4 list-group list-group-flush">
+            {% for dia in horario.dias_de_clase.all %}
+                <a class="list-group-item list-group-item-action" href="{% url 'dia-de-clase-detail' dia.id %}">{{ dia.simple_str }}</a>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <p class="mb-4"><i>Todavía no se han dado clases en este Horario.</i></p>
+        {% endif %}
+
+    {% endblock %}
+
+    {% block delete-title %}Eliminar Horario{% endblock %}
+
+    {% block delete-url %}{% url 'horario-delete' object.pk %}{% endblock %}

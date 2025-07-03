@@ -1,0 +1,12 @@
+{% extends 'gakusei/delete-layout.html' %}
+
+{% block card-title %}Eliminar Pago del Historial{% endblock %}
+
+{% block form %}
+  <form method="post">{% csrf_token %}
+    <p>¿Estás seguro de que deseas eliminar este pago del historial?</p>
+    <p><strong>{{ object }}</strong></p>
+    <input type="submit" class="btn btn-danger" value="Eliminar">
+    <a href="{% url 'payment_form' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}

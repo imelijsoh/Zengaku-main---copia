@@ -1,0 +1,54 @@
+{% extends 'gakusei/list-layout.html' %}
+
+{% block card-title %}Listado de Clases{% endblock %}
+
+{% block create-url %}{% url 'clase-create' %}{% endblock %}
+{% block create-text %}Registrar Clase{% endblock %}
+
+{% block filter-url %}{% url 'clase-filter' %}{% endblock %}
+
+{% block thead %}
+    <th>Curso</th>
+    <th>Sensei</th>
+    <th>Sede</th>
+    <th>Horas Semanales</th>
+    <th>Estudiantes</th>
+    <th>Horario</th>
+    <th>Status</th>
+    <th>Precio</th>
+    <th></th>
+{% endblock %}
+
+{% block tbody %}
+    {% for clase in object_list %}
+        <tr>
+            <td>{{clase.curso}}</td>
+            <td>{{clase.sensei.full_name}}</td>
+            <td>{{clase.sede}}</td>
+            <td>{{clase.horas_semanales}}</td>
+            <td>{{clase.inscripciones.count}}</td>
+            <td>
+                <div>
+                    <strong>Inicio:</strong> {{ clase.f_inicio|date:"d/m/Y" }} - {{ clase.f_inicio|time:"H:i" }}
+                </div>
+                {% if clase.f_cierre %}
+                <div>
+                    <strong>Culminación:</strong> {{ clase.f_cierre|date:"d/m/Y" }} - {{ clase.f_cierre|time:"H:i" }}
+                </div>
+                {% endif %}
+            </td>
+            <td>{{clase.status}}</td>
+            <td>${{clase.precio}}</td>
+            <td class="text-center align-middle">
+                <a href="{% url 'clase-detail' clase.id %}" title="Ver Detalle"><i class="fs-4 fa-solid fa-eye"></i></a>
+                <a href="{% url 'clase-delete' clase.id %}" title="Borrar Clase" class="text-danger ms-3">
+                    <i class="fs-4 fa-solid fa-trash"></i>
+                </a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="9" class="text-center fw-bold fst-italic">Sin Registros</td>
+        </tr>
+    {% endfor %}
+{% endblock %}

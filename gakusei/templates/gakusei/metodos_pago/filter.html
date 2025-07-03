@@ -1,0 +1,42 @@
+{% extends 'gakusei/filter-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+{% endblock %}
+
+
+{% block regresar-url %}{% url 'metodos-pago' %}{% endblock %}
+
+{% block card-title %}Buscar Método de Pago{% endblock %}
+
+
+
+    {% block url-filter-form %}{% url 'metodos-pago-filter' %}{% endblock %}
+    {% block url-filter-button %}{% url 'metodos-pago-filter' %}{% endblock %}
+
+
+    {% block thead %}
+        <th>Método</th>
+        <th style="width: 10%;"></th>
+    {% endblock %}
+
+    {% block tbody %}
+        {% for metodo in object_list %}
+            <tr>
+                <td>{{metodo}}</td>
+                <td class="text-center align-middle"><a href="{% url 'metodos-pago-detail' metodo.id %}"><i class="fs-4 fa-solid fa-eye"></i></a></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2" class="text-center fw-bold fst-italic">Sin Registros</td>
+            </tr>
+        {% endfor %}
+    {% endblock %}

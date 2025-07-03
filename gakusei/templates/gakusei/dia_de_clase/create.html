@@ -1,0 +1,32 @@
+{% extends 'gakusei/create-layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+    {% block style %}
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2.min.css' %}">
+        <link rel="stylesheet" href="{% static 'gakusei/select2/select2-bootstrap-5-theme.min.css' %}">
+    {% endblock %}
+
+    {% block script %}
+        <script src="{% static 'gakusei/js/jquery-3.7.1.min.js' %}"></script>
+        <script src="{% static 'gakusei/select2/select2.full.min.js' %}"></script>
+
+        <script src="{% static 'gakusei/js/dia_de_clase/create.js' %}"></script>
+    {% endblock %}
+
+
+    {% block regresar-url %}{% url 'dia-de-clase' %}{% endblock %}
+
+    {% block card-title %}Registro de Dia de Clase{% endblock %}
+
+    {% block form %}
+        <form action="{% url 'dia-de-clase-create' %}" data-form="{% url 'api-dia-de-clase-form' %}" method="post"> {%csrf_token%}
+            {{ form_clase|crispy }}
+
+            <div id="dias-form">
+                <p>Seleccione una clase primero.</p>
+            </div>
+
+            <input id="submit-button" class="btn btn-lg btn-success" type="submit" value="Registrar">
+        </form>
+    {% endblock %}
