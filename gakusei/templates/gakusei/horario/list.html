@@ -7,6 +7,100 @@
 
 {% block filter-url %}{% url 'horario-filter' %}{% endblock %}
 
+{% block extra-style %}
+<style>
+    body {
+        background: linear-gradient(120deg, #f0f4fd 0%, #e6f7fa 100%);
+    }
+    .horario-table {
+        background: #f6fafd;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        padding: 18px 10px;
+    }
+    .horario-dia {
+        background: #eaf6ff;
+        border-radius: 16px;
+        padding: 14px 8px;
+        min-width: 220px;
+        min-height: 200px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        margin-bottom: 10px;
+        border: 2px solid #b3e0ff;
+        transition: background 0.2s, border 0.2s;
+    }
+    .horario-dia:hover {
+        background: #d0f0ff;
+        border-color: #4fc3f7;
+    }
+    .horario-card {
+        background: #fff8f0;
+        border-radius: 12px;
+        border: 2px solid #ffd59e;
+        margin-bottom: 0;
+        box-shadow: 0 2px 8px rgba(255,193,7,0.07);
+        padding: 14px 16px;
+        transition: box-shadow 0.2s, border 0.2s;
+        position: relative;
+    }
+    .divisor-clase {
+        border: none;
+        border-top: 1.5px dashed #ffd59e;
+        margin: 12px 0 12px 0;
+        width: 90%;
+        opacity: 0.7;
+    }
+    .horario-card:hover {
+        box-shadow: 0 6px 24px rgba(255,193,7,0.18);
+        border-color: #ffb300;
+    }
+    .horario-titulo {
+        font-weight: 700;
+        color: #ff9800;
+        font-size: 1.13em;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+    }
+    .horario-titulo i {
+        font-size: 1.3em;
+        color: #ffb300;
+    }
+    .horario-label {
+        color: #1976d2;
+        font-weight: 600;
+        margin-right: 4px;
+    }
+    .badge-horario {
+        background: #b3e0ff;
+        color: #1976d2;
+        border-radius: 8px;
+        padding: 2px 8px;
+        font-size: 0.97em;
+        margin-left: 2px;
+    }
+    .horario-btns {
+        gap: 0.7rem;
+    }
+    .horario-btns .btn {
+        transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .horario-btns .btn:hover {
+        transform: scale(1.13);
+        box-shadow: 0 2px 8px #b3e0ff;
+    }
+    .text-muted {
+        font-size: 1.01em;
+        color: #b0b0b0 !important;
+    }
+    @media (max-width: 900px) {
+        .horario-dia { min-width: 160px; padding: 6px 2px; }
+        .horario-card { padding: 10px 7px; }
+    }
+</style>
+{% endblock %}
+
 {% block thead %}
 <tr>
     <th>Lunes</th>
@@ -20,194 +114,187 @@
 {% endblock %}
 
 {% block tbody %}
-<tr>
-    <td>
+<tr class="horario-table">
+    <td class="horario-dia">
         {% if horarios_lunes %}
-            <ul class="list-group">
-                {% for horario in horarios_lunes %}
-                <li class="list-group-item">
-                    <strong>Clase:</strong> {{ horario.clase }}<br>
-                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
-                    <strong>Salida:</strong> {{ horario.salida }}<br>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
-                            <i class="fa-solid fa-eye"></i> Ver
-                        </a>
-                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
-                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
-                                <i class="fa-solid fa-trash"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+            {% for horario in horarios_lunes %}
+            <div class="horario-card">
+                <div class="horario-titulo"><i class="fa-solid fa-chalkboard-user"></i> {{ horario.clase }}</div>
+                <div><span class="horario-label">Entrada:</span> <span class="badge-horario">{{ horario.entrada }}</span></div>
+                <div><span class="horario-label">Salida:</span> <span class="badge-horario">{{ horario.salida }}</span></div>
+                <div class="d-flex justify-content-between align-items-center horario-btns mt-2">
+                    <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm px-2 py-1" title="Ver detalles del horario">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-1" title="Eliminar este horario"
+                            onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if not forloop.last %}<hr class="divisor-clase">{% endif %}
+            {% endfor %}
         {% else %}
-            <p class="text-muted">Sin clases programadas</p>
+            <p class="text-muted text-center mt-3"><i class="fa-regular fa-calendar-xmark"></i> Sin clases programadas</p>
         {% endif %}
     </td>
-    <td>
+    <td class="horario-dia">
         {% if horarios_martes %}
-            <ul class="list-group">
-                {% for horario in horarios_martes %}
-                <li class="list-group-item">
-                    <strong>Clase:</strong> {{ horario.clase }}<br>
-                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
-                    <strong>Salida:</strong> {{ horario.salida }}<br>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
-                            <i class="fa-solid fa-eye"></i> Ver
-                        </a>
-                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
-                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
-                                <i class="fa-solid fa-trash"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+            {% for horario in horarios_martes %}
+            <div class="horario-card">
+                <div class="horario-titulo"><i class="fa-solid fa-chalkboard-user"></i> {{ horario.clase }}</div>
+                <div><span class="horario-label">Entrada:</span> <span class="badge-horario">{{ horario.entrada }}</span></div>
+                <div><span class="horario-label">Salida:</span> <span class="badge-horario">{{ horario.salida }}</span></div>
+                <div class="d-flex justify-content-between align-items-center horario-btns mt-2">
+                    <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm px-2 py-1" title="Ver detalles del horario">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-1" title="Eliminar este horario"
+                            onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if not forloop.last %}<hr class="divisor-clase">{% endif %}
+            {% endfor %}
         {% else %}
-            <p class="text-muted">Sin clases programadas</p>
+            <p class="text-muted text-center mt-3"><i class="fa-regular fa-calendar-xmark"></i> Sin clases programadas</p>
         {% endif %}
     </td>
-    <td>
+    <td class="horario-dia">
         {% if horarios_miercoles %}
-            <ul class="list-group">
-                {% for horario in horarios_miercoles %}
-                <li class="list-group-item">
-                    <strong>Clase:</strong> {{ horario.clase }}<br>
-                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
-                    <strong>Salida:</strong> {{ horario.salida }}<br>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
-                            <i class="fa-solid fa-eye"></i> Ver
-                        </a>
-                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
-                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
-                                <i class="fa-solid fa-trash"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+            {% for horario in horarios_miercoles %}
+            <div class="horario-card">
+                <div class="horario-titulo"><i class="fa-solid fa-chalkboard-user"></i> {{ horario.clase }}</div>
+                <div><span class="horario-label">Entrada:</span> <span class="badge-horario">{{ horario.entrada }}</span></div>
+                <div><span class="horario-label">Salida:</span> <span class="badge-horario">{{ horario.salida }}</span></div>
+                <div class="d-flex justify-content-between align-items-center horario-btns mt-2">
+                    <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm px-2 py-1" title="Ver detalles del horario">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-1" title="Eliminar este horario"
+                            onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if not forloop.last %}<hr class="divisor-clase">{% endif %}
+            {% endfor %}
         {% else %}
-            <p class="text-muted">Sin clases programadas</p>
+            <p class="text-muted text-center mt-3"><i class="fa-regular fa-calendar-xmark"></i> Sin clases programadas</p>
         {% endif %}
     </td>
-    <td>
+    <td class="horario-dia">
         {% if horarios_jueves %}
-            <ul class="list-group">
-                {% for horario in horarios_jueves %}
-                <li class="list-group-item">
-                    <strong>Clase:</strong> {{ horario.clase }}<br>
-                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
-                    <strong>Salida:</strong> {{ horario.salida }}<br>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
-                            <i class="fa-solid fa-eye"></i> Ver
-                        </a>
-                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
-                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
-                                <i class="fa-solid fa-trash"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+            {% for horario in horarios_jueves %}
+            <div class="horario-card">
+                <div class="horario-titulo"><i class="fa-solid fa-chalkboard-user"></i> {{ horario.clase }}</div>
+                <div><span class="horario-label">Entrada:</span> <span class="badge-horario">{{ horario.entrada }}</span></div>
+                <div><span class="horario-label">Salida:</span> <span class="badge-horario">{{ horario.salida }}</span></div>
+                <div class="d-flex justify-content-between align-items-center horario-btns mt-2">
+                    <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm px-2 py-1" title="Ver detalles del horario">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-1" title="Eliminar este horario"
+                            onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if not forloop.last %}<hr class="divisor-clase">{% endif %}
+            {% endfor %}
         {% else %}
-            <p class="text-muted">Sin clases programadas</p>
+            <p class="text-muted text-center mt-3"><i class="fa-regular fa-calendar-xmark"></i> Sin clases programadas</p>
         {% endif %}
     </td>
-    <td>
+    <td class="horario-dia">
         {% if horarios_viernes %}
-            <ul class="list-group">
-                {% for horario in horarios_viernes %}
-                <li class="list-group-item">
-                    <strong>Clase:</strong> {{ horario.clase }}<br>
-                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
-                    <strong>Salida:</strong> {{ horario.salida }}<br>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
-                            <i class="fa-solid fa-eye"></i> Ver
-                        </a>
-                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
-                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
-                                <i class="fa-solid fa-trash"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+            {% for horario in horarios_viernes %}
+            <div class="horario-card">
+                <div class="horario-titulo"><i class="fa-solid fa-chalkboard-user"></i> {{ horario.clase }}</div>
+                <div><span class="horario-label">Entrada:</span> <span class="badge-horario">{{ horario.entrada }}</span></div>
+                <div><span class="horario-label">Salida:</span> <span class="badge-horario">{{ horario.salida }}</span></div>
+                <div class="d-flex justify-content-between align-items-center horario-btns mt-2">
+                    <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm px-2 py-1" title="Ver detalles del horario">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-1" title="Eliminar este horario"
+                            onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if not forloop.last %}<hr class="divisor-clase">{% endif %}
+            {% endfor %}
         {% else %}
-            <p class="text-muted">Sin clases programadas</p>
+            <p class="text-muted text-center mt-3"><i class="fa-regular fa-calendar-xmark"></i> Sin clases programadas</p>
         {% endif %}
     </td>
-    <td>
+    <td class="horario-dia">
         {% if horarios_sábado %}
-            <ul class="list-group">
-                {% for horario in horarios_sábado %}
-                <li class="list-group-item">
-                    <strong>Clase:</strong> {{ horario.clase }}<br>
-                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
-                    <strong>Salida:</strong> {{ horario.salida }}<br>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
-                            <i class="fa-solid fa-eye"></i> Ver
-                        </a>
-                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
-                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
-                                <i class="fa-solid fa-trash"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+            {% for horario in horarios_sábado %}
+            <div class="horario-card">
+                <div class="horario-titulo"><i class="fa-solid fa-chalkboard-user"></i> {{ horario.clase }}</div>
+                <div><span class="horario-label">Entrada:</span> <span class="badge-horario">{{ horario.entrada }}</span></div>
+                <div><span class="horario-label">Salida:</span> <span class="badge-horario">{{ horario.salida }}</span></div>
+                <div class="d-flex justify-content-between align-items-center horario-btns mt-2">
+                    <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm px-2 py-1" title="Ver detalles del horario">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-1" title="Eliminar este horario"
+                            onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if not forloop.last %}<hr class="divisor-clase">{% endif %}
+            {% endfor %}
         {% else %}
-            <p class="text-muted">Sin clases programadas</p>
+            <p class="text-muted text-center mt-3"><i class="fa-regular fa-calendar-xmark"></i> Sin clases programadas</p>
         {% endif %}
     </td>
-    <td>
+    <td class="horario-dia">
         {% if horarios_domingo %}
-            <ul class="list-group">
-                {% for horario in horarios_domingo %}
-                <li class="list-group-item">
-                    <strong>Clase:</strong> {{ horario.clase }}<br>
-                    <strong>Entrada:</strong> {{ horario.entrada }}<br>
-                    <strong>Salida:</strong> {{ horario.salida }}<br>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm" title="Ver">
-                            <i class="fa-solid fa-eye"></i> Ver
-                        </a>
-                        <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"
-                                onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
-                                <i class="fa-solid fa-trash"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+            {% for horario in horarios_domingo %}
+            <div class="horario-card">
+                <div class="horario-titulo"><i class="fa-solid fa-chalkboard-user"></i> {{ horario.clase }}</div>
+                <div><span class="horario-label">Entrada:</span> <span class="badge-horario">{{ horario.entrada }}</span></div>
+                <div><span class="horario-label">Salida:</span> <span class="badge-horario">{{ horario.salida }}</span></div>
+                <div class="d-flex justify-content-between align-items-center horario-btns mt-2">
+                    <a href="{% url 'horario-detail' horario.id %}" class="btn btn-outline-primary btn-sm px-2 py-1" title="Ver detalles del horario">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <form action="{% url 'horario-delete' horario.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-1" title="Eliminar este horario"
+                            onclick="return confirm('¿Seguro que deseas eliminar este horario?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if not forloop.last %}<hr class="divisor-clase">{% endif %}
+            {% endfor %}
         {% else %}
-            <p class="text-muted">Sin clases programadas</p>
+            <p class="text-muted text-center mt-3"><i class="fa-regular fa-calendar-xmark"></i> Sin clases programadas</p>
         {% endif %}
     </td>
 </tr>

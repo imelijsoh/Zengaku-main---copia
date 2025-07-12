@@ -43,12 +43,13 @@
                                     {% else %}
                                         <span class="small">{% if object.comprobantes.all|mes_pagado:mes %}<i class="fa fa-check-circle"></i> Pagado{% else %}<i class="fa fa-times-circle"></i> Pendiente{% endif %}</span>
                                     {% endif %}
-                                    {% if not object.comprobantes.all|mes_pagado:mes %}
-                                        {% if not meses_inhabilitados or not mes in meses_inhabilitados %}
+                                    {# --- Lógica de botones y mensajes --- #}
+                                    {% if not meses_inhabilitados or not mes in meses_inhabilitados %}
+                                        {% if object.comprobantes.all|mes_pagado:mes %}
+                                            <button type="submit" name="desmarcar_pagado" value="{{ mes }}" class="btn btn-sm btn-outline-danger mt-2">Desmarcar como pagado</button>
+                                        {% else %}
                                             <button type="submit" name="marcar_pagado" value="{{ mes }}" class="btn btn-sm btn-outline-success mt-2">Marcar como pagado</button>
                                         {% endif %}
-                                    {% elif object.comprobantes.all|mes_pagado:mes %}
-                                        <button type="submit" name="desmarcar_pagado" value="{{ mes }}" class="btn btn-sm btn-outline-danger mt-2">Desmarcar como pagado</button>
                                     {% endif %}
                                 </div>
                             </div>

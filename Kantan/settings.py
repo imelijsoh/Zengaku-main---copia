@@ -151,7 +151,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://estate-filled-lane-nurses.trycloudflare.com",
     "https://taxi-res-toronto-map.trycloudflare.com",
     "https://male-mature-korea-hearts.trycloudflare.com",
-    "https://expanding-building-folders-walking.trycloudflare.com",
+    "https://cst-raises-forest-albums.trycloudflare.com",
 ]
 
 # CRISPY FORMS BOOTSTRAP5

@@ -37,11 +37,13 @@
                 <td>{{pago.referencia}}</td>
                 <td>{{pago.obs}}</td>
                 <td>
-                  {% for comprobante in pago.comprobantes.all %}
-                    {{ comprobante.solvencias.mes|date:"F Y" }}{% if not forloop.last %}, {% endif %}
-                  {% empty %}
-                    ---
-                  {% endfor %}
+                  {% if pago.comprobantes.all %}
+                    {% for comprobante in pago.comprobantes.all %}
+                      <span class="badge bg-success mb-1">{{ comprobante.solvencias.mes|date:"F Y" }}</span>{% if not forloop.last %} {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    <span class="badge bg-secondary">Sin meses</span>
+                  {% endif %}
                 </td>
                 <td>
                   {% with year_month=current_year|stringformat:'s'|add:'-'|add:current_month|stringformat:'s' %}

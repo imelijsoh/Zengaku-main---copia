@@ -35,6 +35,7 @@ class PaymentForm(forms.Form):
         ('payPal', 'PayPal'),
         ('pagoMovil', 'Pago Móvil')
     ])
+    clase = forms.ChoiceField(label='Clase', choices=[], required=True)
     payment_concept = forms.CharField(label='Concepto de pago', max_length=200)
     email = forms.EmailField(label='Correo electrónico')
     emitted_by = forms.CharField(label='Emitido por (extra)', max_length=100, required=False)
@@ -53,6 +54,11 @@ class PaymentForm(forms.Form):
         ("Diciembre", "Diciembre"),
     ]
     month = forms.ChoiceField(label='Mes cancelado', choices=MONTH_CHOICES, required=True)
+
+    def __init__(self, *args, **kwargs):
+        clases_choices = kwargs.pop('clases_choices', [])
+        super().__init__(*args, **kwargs)
+        self.fields['clase'].choices = clases_choices
 
 
 

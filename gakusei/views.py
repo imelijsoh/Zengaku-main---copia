@@ -34,8 +34,18 @@ import json
 
 def payment_view(request):
     error_message = None
+    clases_choices = []
+    estudiante = None
+    clase = None
     if request.method == 'POST':
-        form = PaymentForm(request.POST)
+        # Obtener el estudiante por cédula
+        cedula = request.POST.get('student_id')
+        if cedula:
+            estudiante = Estudiante.objects.filter(personal_data__cedula=cedula).first()
+            if estudiante:
+                clases_qs = Clase.objects.filter(inscripciones__estudiante=estudiante)
+                clases_choices = [(str(c.id), str(c)) for c in clases_qs]
+        form = PaymentForm(request.POST, clases_choices=clases_choices)
         print('DEBUG POST DATA:', request.POST)  # <-- Depuración
         if form.is_valid():
             print('DEBUG CLEANED DATA:', form.cleaned_data)  # <-- Depuración
@@ -172,235 +182,114 @@ def payment_view(request):
             email.attach('Factura_Zengaku.pdf', buffer.getvalue(), 'application/pdf')
             email.send()
 
-            # --- GUARDAR EL PAGO EN LA BASE DE DATOS ---
+            # --- GUARDAR EL PAGO EN LA BASE DE DATOS SOLO PARA EL MES SELECCIONADO ---
             try:
                 with transaction.atomic():
-                    # Buscar o crear Persona y Estudiante
-                    cedula = form.cleaned_data['student_id']
-                    persona = Persona.objects.filter(cedula=cedula).first()
-                    if not persona:
-                        # Mejor manejo de nombres: primer nombre, segundo nombre, primer apellido, segundo apellido
-                        name_parts = form.cleaned_data['student_name'].strip().split()
-                        first_name = name_parts[0] if len(name_parts) > 0 else ''
-                        middle_name = name_parts[1] if len(name_parts) > 2 else ''
-                        last_name_1 = name_parts[-2] if len(name_parts) > 1 else ''
-                        last_name_2 = name_parts[-1] if len(name_parts) > 2 else ''
-                        if len(name_parts) == 2:
-                            last_name_1 = name_parts[1]
-                            last_name_2 = ''
-                        persona = Persona.objects.create(
-                            nacionalidad='V',  # O ajustar si hay campo en el form
-                            cedula=cedula,
-                            first_name=first_name,
-                            middle_name=middle_name,
-                            last_name_1=last_name_1,
-                            last_name_2=last_name_2,
-                            personal_email=form.cleaned_data['email'],
-                            telefono='0424-0000000',  # Default, as not in form
-                        )
-                    if not persona or not persona.pk:
-                        raise Exception('No se pudo crear ni encontrar la Persona para el pago.')
-                    estudiante = Estudiante.objects.filter(personal_data=persona).first()
-                    if not estudiante:
-                        estudiante = Estudiante.objects.create(
-                            personal_data=persona,
-                            status=Estudiante.Status.ACTIVO
-                        )
-                    if not estudiante or not estudiante.pk:
-                        raise Exception('No se pudo crear ni encontrar el Estudiante para el pago.')
-
-                    # Buscar clase (usando el concepto de pago, si es posible)
-                    clase = None
-                    concepto = form.cleaned_data['payment_concept']
-                    clases = Clase.objects.filter(curso__modulo__icontains=concepto)
-                    if clases.exists():
-                        clase = clases.first()
-                    else:
-                        clase = Clase.objects.first()  # fallback: primera clase
-                    if not clase or not clase.pk:
-                        raise Exception('No se pudo encontrar ninguna Clase para el pago.')
-
-                    # Buscar método de pago
-                    metodo = MetodosPagos.objects.filter(metodo__iexact=form.cleaned_data['payment_method']).first()
-                    if not metodo:
-                        metodo = MetodosPagos.objects.first()  # fallback
-                    if not metodo or not metodo.pk:
-                        raise Exception('No se pudo encontrar ningún Método de Pago válido.')
-
-                    # Asegurar que el estudiante esté inscrito en la clase
-                    inscripcion = Inscripciones.objects.filter(estudiante=estudiante, clase=clase).first()
-                    if not inscripcion:
-                        inscripcion = Inscripciones.objects.create(estudiante=estudiante, clase=clase, precio_a_pagar=clase.precio)
-                    if not inscripcion or not inscripcion.pk:
-                        raise Exception('No se pudo crear ni encontrar la Inscripción para el pago.')
-                    # Crear el pago (pero NO repartir el monto automáticamente, solo registrar el pago)
+                    estudiante = Estudiante.objects.filter(personal_data__cedula=form.cleaned_data['student_id']).first()
+                    clase_id = form.cleaned_data.get('clase')
+                    clase = Clase.objects.filter(id=clase_id).first()
+                    if not estudiante or not clase:
+                        error_message = "No se encontró el estudiante o la clase."
+                        raise Exception(error_message)
+                    # Crear el pago sin reparto automático
                     pago = Pagos(
                         estudiante=estudiante,
                         clase=clase,
-                        metodo=metodo,
+                        metodo=MetodosPagos.objects.first(),  # Ajusta si tienes el método en el form
                         monto_pagado=int(form.cleaned_data['amount']),
                         referencia=form.cleaned_data['reference_code'],
                         fecha_pago=form.cleaned_data['payment_date'],
-                        obs=form.cleaned_data['payment_concept'],
+                        obs=form.cleaned_data.get('payment_concept', ''),
                     )
                     pago.save(skip_reparto=True)
-
-                    # Marcar el mes seleccionado como abonado en Solvencias y crear comprobante
-                    mes_cancelado = form.cleaned_data['month']
+                    # Crear o actualizar solvencia solo para el mes seleccionado
                     meses_es = [
                         "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
                     ]
-                    mes_index = meses_es.index(mes_cancelado) + 1
-                    solvencia = Solvencias.objects.filter(
+                    mes_nombre = form.cleaned_data['month']
+                    year = form.cleaned_data['payment_date'].year
+                    mes_index = meses_es.index(mes_nombre) + 1
+                    from django.utils import timezone
+                    from datetime import datetime
+                    fecha_mes = datetime(year, mes_index, 1, tzinfo=timezone.get_current_timezone())
+                    inscripcion = Inscripciones.objects.filter(estudiante=estudiante, clase=clase).first()
+                    monto_a_pagar = inscripcion.precio_a_pagar if inscripcion else 50
+                    solvencia, created = Solvencias.objects.get_or_create(
                         estudiante=estudiante,
                         clase=clase,
-                        mes__month=mes_index
-                    ).order_by('-mes').first()
-                    abono = int(form.cleaned_data['amount'])
-                    if solvencia:
-                        solvencia.monto_abonado += abono
-                        if solvencia.monto_abonado >= solvencia.monto_a_pagar:
-                            solvencia.pagado = Solvencias.Pagado.PAGADO
-                            solvencia.monto_abonado = solvencia.monto_a_pagar
-                        else:
-                            solvencia.pagado = Solvencias.Pagado.ABONADO
-                        solvencia.save()
-                    else:
-                        from django.utils import timezone
-                        from datetime import datetime
-                        year = form.cleaned_data['payment_date'].year
-                        fecha_mes = datetime(year, mes_index, 1, tzinfo=timezone.get_current_timezone())
-                        # Obtener monto a pagar de la inscripción
-                        inscripcion = Inscripciones.objects.filter(estudiante=estudiante, clase=clase).first()
-                        monto_a_pagar = inscripcion.precio_a_pagar if inscripcion else abono
-                        pagado_status = Solvencias.Pagado.PAGADO if abono >= monto_a_pagar else Solvencias.Pagado.ABONADO
-                        solvencia = Solvencias.objects.create(
-                            estudiante=estudiante,
-                            clase=clase,
-                            mes=fecha_mes,
-                            pagado=pagado_status,
-                            monto_a_pagar=monto_a_pagar,
-                            monto_abonado=abono,
-                        )
-                    # Crear comprobante si no existe para este pago y solvencia
-                    if not Comprobantes.objects.filter(pagos=pago, solvencias=solvencia).exists():
-                        Comprobantes.objects.create(
-                            pagos=pago,
-                            solvencias=solvencia,
-                            monto_aplicado=abono,
-                        )
-
-                    # Guardar también en FacturaPago
-                    print('DEBUG: Valor de month en cleaned_data:', form.cleaned_data.get('month'))  # <-- Línea de depuración
-                    FacturaPago.objects.create(
-                        issued_by=form.cleaned_data['issued_by'],
-                        student_name=form.cleaned_data['student_name'],
-                        student_id=form.cleaned_data['student_id'],
-                        amount=form.cleaned_data['amount'],
-                        reference_code=form.cleaned_data['reference_code'],
-                        payment_date=form.cleaned_data['payment_date'],
-                        payment_method=form.cleaned_data['payment_method'],
-                        payment_concept=form.cleaned_data['payment_concept'],
-                        email=form.cleaned_data['email'],
-                        emitted_by=form.cleaned_data['emitted_by'],
-                        month=form.cleaned_data['month'],
+                        mes=fecha_mes,
+                        defaults={
+                            'pagado': Solvencias.Pagado.SIN_PAGAR,
+                            'monto_a_pagar': monto_a_pagar,
+                            'monto_abonado': 0,
+                        }
                     )
+                    # Sumar el abono al monto existente y repartir excedente a meses siguientes
+                    abono_total = int(form.cleaned_data['amount'])
+                    abono_anterior = solvencia.monto_abonado or 0
+                    monto_restante = monto_a_pagar - abono_anterior
+                    if abono_total + abono_anterior >= monto_a_pagar:
+                        solvencia.monto_abonado = monto_a_pagar
+                        solvencia.pagado = Solvencias.Pagado.PAGADO
+                        abono_total -= monto_restante
+                    else:
+                        solvencia.monto_abonado = abono_anterior + abono_total
+                        if solvencia.monto_abonado > 0:
+                            solvencia.pagado = Solvencias.Pagado.ABONADO
+                        abono_total = 0
+                    solvencia.save()
+                    # Crear comprobante solo para este mes
+                    if not Comprobantes.objects.filter(pagos=pago, solvencias=solvencia).exists():
+                        Comprobantes.objects.create(pagos=pago, solvencias=solvencia, monto_aplicado=solvencia.monto_abonado)
+                    # Si hay excedente, abonar a meses siguientes
+                    if abono_total > 0:
+                        for offset in range(1, 13):
+                            next_month = mes_index + offset
+                            next_year = year
+                            if next_month > 12:
+                                next_month -= 12
+                                next_year += 1
+                            from django.utils import timezone
+                            from datetime import datetime
+                            fecha_mes_siguiente = datetime(next_year, next_month, 1, tzinfo=timezone.get_current_timezone())
+                            inscripcion = Inscripciones.objects.filter(estudiante=estudiante, clase=clase).first()
+                            monto_a_pagar_siguiente = inscripcion.precio_a_pagar if inscripcion else 50
+                            solvencia_siguiente, _ = Solvencias.objects.get_or_create(
+                                estudiante=estudiante,
+                                clase=clase,
+                                mes=fecha_mes_siguiente,
+                                defaults={
+                                    'pagado': Solvencias.Pagado.SIN_PAGAR,
+                                    'monto_a_pagar': monto_a_pagar_siguiente,
+                                    'monto_abonado': 0,
+                                }
+                            )
+                            abono_anterior_siguiente = solvencia_siguiente.monto_abonado or 0
+                            monto_restante_siguiente = monto_a_pagar_siguiente - abono_anterior_siguiente
+                            if abono_total >= monto_restante_siguiente:
+                                solvencia_siguiente.monto_abonado = monto_a_pagar_siguiente
+                                solvencia_siguiente.pagado = Solvencias.Pagado.PAGADO
+                                abono_total -= monto_restante_siguiente
+                            else:
+                                solvencia_siguiente.monto_abonado = abono_anterior_siguiente + abono_total
+                                if solvencia_siguiente.monto_abonado > 0:
+                                    solvencia_siguiente.pagado = Solvencias.Pagado.ABONADO
+                                abono_total = 0
+                            solvencia_siguiente.save()
+                            if not Comprobantes.objects.filter(pagos=pago, solvencias=solvencia_siguiente).exists():
+                                Comprobantes.objects.create(pagos=pago, solvencias=solvencia_siguiente, monto_aplicado=solvencia_siguiente.monto_abonado)
+                            if abono_total <= 0:
+                                break
             except Exception as e:
                 error_message = "Ocurrió un error al guardar el pago. Por favor, verifica los datos ingresados. Si el problema persiste, contacta a soporte."
                 print(f"Error guardando el pago: {e}")
             if not error_message:
-                # --- REPARTO DE ABONO ENTRE MESES (CORREGIDO) ---
-                abono_restante = int(form.cleaned_data['amount'])
-                year = form.cleaned_data['payment_date'].year
-                from django.utils import timezone
-                from datetime import datetime
-                meses_es = [
-                    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-                ]
-                mes_index = meses_es.index(form.cleaned_data['month']) + 1
-                # 1. Aplicar al mes seleccionado
-                fecha_mes = datetime(year, mes_index, 1, tzinfo=timezone.get_current_timezone())
-                solvencia = Solvencias.objects.filter(
-                    estudiante=estudiante,
-                    clase=clase,
-                    mes__month=mes_index
-                ).order_by('-mes').first()
-                inscripcion = Inscripciones.objects.filter(estudiante=estudiante, clase=clase).first()
-                monto_a_pagar = inscripcion.precio_a_pagar if inscripcion else abono_restante
-                if not solvencia:
-                    solvencia = Solvencias.objects.create(
-                        estudiante=estudiante,
-                        clase=clase,
-                        mes=fecha_mes,
-                        pagado=Solvencias.Pagado.SIN_PAGAR,
-                        monto_a_pagar=monto_a_pagar,
-                        monto_abonado=0,
-                    )
-                abono_faltante = monto_a_pagar - solvencia.monto_abonado
-                abono_aplicar = min(abono_restante, abono_faltante)
-                solvencia.monto_abonado += abono_aplicar
-                if solvencia.monto_abonado >= monto_a_pagar:
-                    solvencia.pagado = Solvencias.Pagado.PAGADO
-                    solvencia.monto_abonado = monto_a_pagar
-                else:
-                    solvencia.pagado = Solvencias.Pagado.ABONADO
-                solvencia.save()
-                if not Comprobantes.objects.filter(pagos=pago, solvencias=solvencia).exists():
-                    Comprobantes.objects.create(
-                        pagos=pago,
-                        solvencias=solvencia,
-                        monto_aplicado=abono_aplicar,
-                    )
-                abono_restante -= abono_aplicar
-                # 2. Si hay sobrante, abonar SOLO al mes siguiente inmediato (mes_index + 1)
-                if abono_restante > 0 and mes_index < 12:
-                    mes_siguiente = mes_index + 1
-                    fecha_mes_sig = datetime(year, mes_siguiente, 1, tzinfo=timezone.get_current_timezone())
-                    # Buscar o crear la solvencia EXACTAMENTE para el mes siguiente
-                    solvencia_sig = Solvencias.objects.filter(
-                        estudiante=estudiante,
-                        clase=clase,
-                        mes__year=year,
-                        mes__month=mes_siguiente
-                    ).order_by('-mes').first()
-                    if not solvencia_sig:
-                        solvencia_sig = Solvencias.objects.create(
-                            estudiante=estudiante,
-                            clase=clase,
-                            mes=fecha_mes_sig,
-                            pagado=Solvencias.Pagado.SIN_PAGAR,
-                            monto_a_pagar=monto_a_pagar,
-                            monto_abonado=0,
-                        )
-                    abono_faltante_sig = monto_a_pagar - solvencia_sig.monto_abonado
-                    abono_aplicar_sig = min(abono_restante, abono_faltante_sig)
-                    # Limitar el abono para que nunca supere el monto a pagar
-                    nuevo_abono = solvencia_sig.monto_abonado + abono_aplicar_sig
-                    if nuevo_abono >= monto_a_pagar:
-                        solvencia_sig.monto_abonado = monto_a_pagar
-                        solvencia_sig.pagado = Solvencias.Pagado.PAGADO
-                    elif nuevo_abono > 0:
-                        solvencia_sig.monto_abonado = nuevo_abono
-                        solvencia_sig.pagado = Solvencias.Pagado.ABONADO
-                    else:
-                        solvencia_sig.monto_abonado = 0
-                        solvencia_sig.pagado = Solvencias.Pagado.SIN_PAGAR
-                    solvencia_sig.save()
-                    if not Comprobantes.objects.filter(pagos=pago, solvencias=solvencia_sig).exists():
-                        Comprobantes.objects.create(
-                            pagos=pago,
-                            solvencias=solvencia_sig,
-                            monto_aplicado=abono_aplicar_sig,
-                        )
-                    # No seguir abonando a más meses
-            # --- NO GUARDAR MESES INHABILITADOS EN LA SESIÓN AQUÍ ---
-            from django.shortcuts import redirect
-            return redirect("payment_form")
-        else: 
+                from django.shortcuts import redirect
+                return redirect("payment_form")
+        else:
             print('DEBUG FORM ERRORS:', form.errors)  # <-- Depuración
     else:
-        form = PaymentForm()
-
+        form = PaymentForm(clases_choices=[])
     # Obtener historial de pagos
     letra = request.GET.get('letra')
     if letra:
@@ -1178,16 +1067,22 @@ class PagosDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        meses_lista = [
+        meses_lista = []
+        anio_actual = self.object.fecha_pago.year if hasattr(self.object, 'fecha_pago') else None
+        if anio_actual is None:
+            from datetime import datetime
+            anio_actual = datetime.now().year
+        for i, mes in enumerate([
             "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ]
+        ], start=1):
+            meses_lista.append(f"{mes} {anio_actual}")
         context["meses_lista"] = meses_lista
         # Prepara solvencias por mes para el template
         solvencias_por_mes = {}
         estudiante = self.object.estudiante
         clase = self.object.clase
         for i, mes in enumerate(meses_lista, start=1):
-            solvencia = estudiante.solvencias.filter(clase=clase, mes__month=i).first()
+            solvencia = estudiante.solvencias.filter(clase=clase, mes__month=i, mes__year=anio_actual).first()
             solvencias_por_mes[mes] = solvencia
         context["solvencias_por_mes"] = solvencias_por_mes
         # Recuperar meses inhabilitados de la sesión si existen
@@ -1211,44 +1106,58 @@ class PagosDetailView(DetailView):
             request.session[f"meses_inhabilitados_{self.object.pk}"] = meses_inhabilitados
         from datetime import datetime
         if mes_a_marcar:
-            mes_index = meses_es.index(mes_a_marcar) + 1
-            # Buscar la solvencia más reciente para ese mes y clase
-            solvencia = estudiante.solvencias.filter(clase=clase, mes__month=mes_index).order_by('-mes').first()
-            if solvencia:
-                solvencia.pagado = solvencia.Pagado.PAGADO
-                solvencia.monto_abonado = solvencia.monto_a_pagar
-                solvencia.save()
-            else:
+            print(f"DEBUG mes_a_marcar recibido: '{mes_a_marcar}'")
+            partes = mes_a_marcar.split()
+            mes_nombre = partes[0]
+            anio = int(partes[1]) if len(partes) > 1 else datetime.now().year
+            print(f"DEBUG mes_nombre: '{mes_nombre}', anio: {anio}")
+            mes_index = meses_es.index(mes_nombre) + 1
+            # Solo modificar el mes seleccionado
+            solvencia = estudiante.solvencias.filter(clase=clase, mes__month=mes_index, mes__year=anio).order_by('-mes').first()
+            if not solvencia:
+                # Crear solvencia si no existe
+                inscripcion = Inscripciones.objects.filter(estudiante=estudiante, clase=clase).first()
+                monto_a_pagar = inscripcion.precio_a_pagar if inscripcion else 50  # <-- Cambiado de 0 a 50
                 from django.utils import timezone
-                year = self.object.fecha_pago.year
-                fecha_mes = datetime(year, mes_index, 1, tzinfo=timezone.get_current_timezone())
+                from datetime import datetime
+                fecha_mes = datetime(anio, mes_index, 1, tzinfo=timezone.get_current_timezone())
+                from .models import Solvencias
                 solvencia = Solvencias.objects.create(
                     estudiante=estudiante,
                     clase=clase,
                     mes=fecha_mes,
                     pagado=Solvencias.Pagado.PAGADO,
-                    monto_a_pagar=0,
-                    monto_abonado=0,
+                    monto_a_pagar=monto_a_pagar,
+                    monto_abonado=monto_a_pagar,
                 )
-            if not Comprobantes.objects.filter(pagos=self.object, solvencias=solvencia).exists():
+            else:
+                solvencia.pagado = solvencia.Pagado.PAGADO
+                if solvencia.monto_abonado < solvencia.monto_a_pagar:
+                    solvencia.monto_abonado = solvencia.monto_a_pagar
+                solvencia.save()
+            # Crear comprobante si no existe
+            from .models import Comprobantes
+            if not Comprobantes.objects.filter(solvencias=solvencia).exists():
                 Comprobantes.objects.create(
-                    pagos=self.object,
+                    pagos=self.object,  # El pago principal de la vista detail
                     solvencias=solvencia,
-                    monto_aplicado=solvencia.monto_a_pagar,
+                    monto_aplicado=solvencia.monto_abonado,
                 )
-            messages.success(request, f"Mes {mes_a_marcar} marcado como pagado.")
-        elif mes_a_desmarcar:
-            mes_index = meses_es.index(mes_a_desmarcar) + 1
-            # Buscar la solvencia más reciente para ese mes y clase
-            solvencia = estudiante.solvencias.filter(clase=clase, mes__month=mes_index).order_by('-mes').first()
+        if mes_a_desmarcar:
+            partes = mes_a_desmarcar.split()
+            mes_nombre = partes[0]
+            anio = int(partes[1]) if len(partes) > 1 else datetime.now().year
+            mes_index = meses_es.index(mes_nombre) + 1
+            # Solo modificar el mes seleccionado
+            solvencia = estudiante.solvencias.filter(clase=clase, mes__month=mes_index, mes__year=anio).order_by('-mes').first()
             if solvencia:
                 solvencia.pagado = solvencia.Pagado.SIN_PAGAR
-                solvencia.monto_abonado = 0
                 solvencia.save()
-                # Eliminar comprobante asociado a este pago y solvencia
-                Comprobantes.objects.filter(pagos=self.object, solvencias=solvencia).delete()
-                messages.success(request, f"Mes {mes_a_desmarcar} desmarcado como pagado.")
-        return self.get(request, *args, **kwargs)
+                # Eliminar comprobante correspondiente
+                from .models import Comprobantes
+                Comprobantes.objects.filter(solvencias=solvencia).delete()
+        from django.shortcuts import redirect
+        return redirect(request.path)
 
 class PagosCreateView(CreateView):
     model = Pagos
@@ -1390,7 +1299,6 @@ class CursoCreateView(CreateView):
 
     def get_success_url(self):
         return reverse("curso-detail", kwargs={"pk":self.object.pk})
-    
 
 class CursoEditView(UpdateView):
     model = Curso

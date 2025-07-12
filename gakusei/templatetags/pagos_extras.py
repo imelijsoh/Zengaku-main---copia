@@ -36,8 +36,18 @@ def mes_espanol(date_obj):
 @register.filter
 def mes_pagado(comprobantes, mes):
     """
-    Devuelve True si existe algún comprobante pagado para el mes en español dado.
+    Devuelve True si existe algún comprobante pagado para el mes y año exactos dados en el string mes (ejemplo: 'Octubre 2025').
     """
+    if not mes:
+        return False
+    partes = mes.split()
+    if len(partes) < 2:
+        return False
+    nombre_mes = partes[0]
+    try:
+        anio = int(partes[1])
+    except (IndexError, ValueError):
+        return False
     meses = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -45,9 +55,24 @@ def mes_pagado(comprobantes, mes):
     for comprobante in list(comprobantes):
         solvencia = comprobante.solvencias
         if hasattr(solvencia, 'pagado') and hasattr(solvencia, 'mes'):
-            if solvencia.pagado == 'Pagado' and meses[solvencia.mes.month - 1] == mes:
-                return True
+            mes_obj = solvencia.mes
+            if mes_obj:
+                mes_nombre = meses[mes_obj.month - 1]
+                mes_anio = mes_obj.year
+                if (
+                    solvencia.pagado == 'Pagado' and
+                    mes_nombre == nombre_mes and
+                    mes_anio == anio
+                ):
+                    return True
     return False
+
+@register.filter
+def get_item(dictionary, key):
+    """
+    Devuelve el valor de un diccionario dado su clave.
+    """
+    return dictionary.get(key)
 
 # Aquí puedes agregar tus filtros o tags personalizados, por ejemplo:
 # @register.filter
