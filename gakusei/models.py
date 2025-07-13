@@ -735,16 +735,33 @@ class Asistencias(models.Model):
 
 class FacturaPago(models.Model):
     issued_by = models.CharField("Emitido por", max_length=100)
-    student_name = models.CharField("Nombre del estudiante", max_length=100)
-    student_id = models.CharField("Cédula", max_length=20)
+    # Campo relacionado obligatorio para obtener datos del estudiante
+    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE, related_name="facturas", verbose_name="Estudiante")
     amount = models.DecimalField("Monto", max_digits=10, decimal_places=5)
     reference_code = models.CharField("Código de referencia", max_length=50)
     payment_date = models.DateField("Fecha de pago")
     payment_method = models.CharField("Método de pago", max_length=50)
     payment_concept = models.CharField("Concepto de pago", max_length=200)
-    email = models.EmailField("Correo electrónico")
     emitted_by = models.CharField("Emitido por (extra)", max_length=100, blank=True, null=True)
     month = models.CharField("Mes cancelado", max_length=20, blank=True, null=True)
 
+    def get_student_name(self):
+        """Obtiene el nombre completo del estudiante"""
+        return self.estudiante.full_name()
+    
+    def get_student_id(self):
+        """Obtiene la cédula del estudiante"""
+        return self.estudiante.cedula()
+    
+    def get_email(self):
+        """Obtiene el email del estudiante"""
+        return self.estudiante.personal_data.personal_email
+
+    def save(self, *args, **kwargs):
+        # Auto-completar campos si están vacíos
+        if not self.emitted_by:
+            self.emitted_by = self.issued_by
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Factura de {self.student_name} ({self.amount}$, {self.payment_date})"
+        return f"Factura de {self.get_student_name()} ({self.amount}$, {self.payment_date})"

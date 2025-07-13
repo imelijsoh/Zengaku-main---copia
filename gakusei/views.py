@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import dateformat
 from django.utils.timezone import now
@@ -31,7 +32,55 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.serializers.json import DjangoJSONEncoder
 import json
+from django.http import JsonResponse
+from .models import Estudiante
 
+def autocomplete_estudiante(request):
+    term = request.GET.get('term', '')
+    field = request.GET.get('field', 'cedula')
+    qs = Estudiante.objects.all()
+    if field == 'cedula':
+        qs = qs.filter(personal_data__cedula__startswith=term)
+    elif field == 'nombre':
+        qs = qs.filter(personal_data__first_name__istartswith=term) | qs.filter(personal_data__last_name_1__istartswith=term)
+    elif field == 'email':
+        qs = qs.filter(personal_data__personal_email__istartswith=term)
+    estudiantes = qs[:10]
+    results = []
+    for est in estudiantes:
+        results.append({
+            'cedula': est.personal_data.cedula,  # solo número
+            'cedula_full': est.cedula(),         # con letra
+            'nombre': est.full_name(),           # asegurarse de llamar la función
+            'email': est.personal_data.personal_email,
+        })
+    return JsonResponse(results, safe=False)
+
+def estudiantes_autocomplete(request):
+    estudiantes = Estudiante.objects.all()
+    results = []
+    for est in estudiantes:
+        results.append({
+            'id': est.id,
+            'cedula': est.cedula(),  # corregido: llamar como método
+            'full_name': est.full_name(),
+            'email': est.personal_data.personal_email if hasattr(est, 'personal_data') else '',
+        })
+    return JsonResponse({'results': results})
+
+def buscar_estudiante_por_cedula(request):
+    cedula = request.GET.get('cedula')
+    estudiante = Estudiante.objects.filter(personal_data__cedula=cedula).first()
+    if estudiante:
+        data = {
+            'nombre': estudiante.full_name(),
+            'email': estudiante.personal_data.personal_email,
+            'cedula': estudiante.cedula(),
+        }
+    else:
+        data = {}
+    return JsonResponse(data)
+    
 def payment_view(request):
     error_message = None
     clases_choices = []
@@ -185,7 +234,13 @@ def payment_view(request):
             # --- GUARDAR EL PAGO EN LA BASE DE DATOS SOLO PARA EL MES SELECCIONADO ---
             try:
                 with transaction.atomic():
-                    estudiante = Estudiante.objects.filter(personal_data__cedula=form.cleaned_data['student_id']).first()
+                    # Limpiar la cédula para que sea solo el número
+                    cedula_input = form.cleaned_data['student_id']
+                    if isinstance(cedula_input, str):
+                        cedula_num = ''.join(filter(str.isdigit, cedula_input))
+                    else:
+                        cedula_num = cedula_input
+                    estudiante = Estudiante.objects.filter(personal_data__cedula=cedula_num).first()
                     clase_id = form.cleaned_data.get('clase')
                     clase = Clase.objects.filter(id=clase_id).first()
                     if not estudiante or not clase:
@@ -280,6 +335,18 @@ def payment_view(request):
                                 Comprobantes.objects.create(pagos=pago, solvencias=solvencia_siguiente, monto_aplicado=solvencia_siguiente.monto_abonado)
                             if abono_total <= 0:
                                 break
+                    # Guardar la factura de pago
+                    FacturaPago.objects.create(
+                        issued_by=form.cleaned_data['issued_by'],
+                        amount=form.cleaned_data['amount'],
+                        reference_code=form.cleaned_data['reference_code'],
+                        payment_date=form.cleaned_data['payment_date'],
+                        payment_method=form.cleaned_data['payment_method'],
+                        payment_concept=form.cleaned_data['payment_concept'],
+                        emitted_by=form.cleaned_data.get('emitted_by', ''),
+                        month=form.cleaned_data['month'],
+                        estudiante=estudiante
+                    )
             except Exception as e:
                 error_message = "Ocurrió un error al guardar el pago. Por favor, verifica los datos ingresados. Si el problema persiste, contacta a soporte."
                 print(f"Error guardando el pago: {e}")

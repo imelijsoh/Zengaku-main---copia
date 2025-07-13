@@ -17,10 +17,12 @@ m            {% if error_message %}
                         <div class="form-group">
                             {{ form.student_name.label_tag }}
                             {{ form.student_name }}
+                            <datalist id="student_name_datalist"></datalist>
                         </div>
                         <div class="form-group">
                             {{ form.student_id.label_tag }}
                             {{ form.student_id }}
+                            <datalist id="student_id_datalist"></datalist>
                         </div>
                         <div class="form-group">
                             {{ form.clase.label_tag }}
@@ -43,6 +45,7 @@ m            {% if error_message %}
                         <div class="form-group">
                             {{ form.email.label_tag }}
                             {{ form.email }}
+                            <datalist id="student_email_datalist"></datalist>
                         </div>
                         <div class="form-group">
                             {{ form.issued_by.label_tag }}
@@ -64,6 +67,145 @@ m            {% if error_message %}
                 </div>
                 <button type="submit">Enviar</button>
             </form>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                let estudiantes = [];
+                fetch('/estudiantes-autocomplete/')
+                    .then(response => response.json())
+                    .then(data => {
+                        estudiantes = data.results;
+                        // Rellenar datalists
+                        const nameDatalist = document.getElementById('student_name_datalist');
+                        const idDatalist = document.getElementById('student_id_datalist');
+                        const emailDatalist = document.getElementById('student_email_datalist');
+                        nameDatalist.innerHTML = '';
+                        idDatalist.innerHTML = '';
+                        emailDatalist.innerHTML = '';
+                        estudiantes.forEach(est => {
+                            const nameOption = document.createElement('option');
+                            nameOption.value = est.full_name;
+                            nameDatalist.appendChild(nameOption);
+                            const idOption = document.createElement('option');
+                            idOption.value = est.cedula;
+                            idDatalist.appendChild(idOption);
+                            const emailOption = document.createElement('option');
+                            emailOption.value = est.email;
+                            emailDatalist.appendChild(emailOption);
+                        });
+                    });
+
+                // Inputs
+                const nameInput = document.getElementById('id_student_name');
+                const idInput = document.getElementById('id_student_id');
+                const emailInput = document.getElementById('id_email');
+
+                function fillFields(est) {
+                    if (est) {
+                        nameInput.value = est.full_name;
+                        idInput.value = est.cedula;
+                        emailInput.value = est.email;
+                    }
+                }
+
+                nameInput.addEventListener('change', function() {
+                    const est = estudiantes.find(e => e.full_name === nameInput.value);
+                    if (est) {
+                        idInput.value = est.cedula;
+                        emailInput.value = est.email;
+                    }
+                });
+            });
+            $(function() {
+                // Cambia los IDs si tus campos tienen otros
+                const idInput = $('#id_student_id');
+                const nameInput = $('#id_student_name');
+                const emailInput = $('#id_email');
+
+                idInput.on('change blur', function() {
+                    var cedula = $(this).val();
+                    if (cedula) {
+                        $.get('/buscar-estudiante/', {cedula: cedula}, function(data) {
+                            if (data && data.nombre) {
+                                nameInput.val(data.nombre);
+                                emailInput.val(data.email);
+                            } else {
+                                nameInput.val('');
+                                emailInput.val('');
+                            }
+                        });
+                    }
+                });
+            });
+            </script>
+            <style>
+.autocomplete-suggestions {
+    border: 1px solid #ccc;
+    background: #fff;
+    position: absolute;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+}
+.autocomplete-suggestion {
+    padding: 8px;
+    cursor: pointer;
+}
+.autocomplete-suggestion:hover {
+    background: #f0f0f0;
+}
+</style>
+<script>
+$(function() {
+    function setupAutocomplete($input, field) {
+        let $suggestionsBox = $('<div class="autocomplete-suggestions"></div>').insertAfter($input).hide();
+
+        $input.on('input', function() {
+            let term = $(this).val();
+            if (term.length > 0) {
+                $.get('/autocomplete-estudiante/', {term: term, field: field}, function(data) {
+                    $suggestionsBox.empty();
+                    if (data.length > 0) {
+                        data.forEach(function(item) {
+                            $suggestionsBox.append(
+                                $('<div class="autocomplete-suggestion"></div>')
+                                    .text(item.cedula_full + ' - ' + item.nombre + ' - ' + item.email)
+                                    .data('cedula', item.cedula) // solo número
+                                    .data('nombre', item.nombre)
+                                    .data('email', item.email)
+                            );
+                        });
+                        $suggestionsBox.show();
+                    } else {
+                        $suggestionsBox.hide();
+                    }
+                });
+            } else {
+                $suggestionsBox.hide();
+            }
+        });
+
+        $suggestionsBox.on('click', '.autocomplete-suggestion', function() {
+            $('#id_student_id').val($(this).data('cedula')).trigger('change');
+            $('#id_student_name').val($(this).data('nombre'));
+            $('#id_email').val($(this).data('email'));
+            $suggestionsBox.hide();
+        });
+
+        // Ocultar sugerencias si se hace click fuera
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest($suggestionsBox).length && !$(e.target).is($input)) {
+                $suggestionsBox.hide();
+            }
+        });
+    }
+
+    setupAutocomplete($('#id_student_id'), 'cedula');
+    setupAutocomplete($('#id_student_name'), 'nombre');
+    setupAutocomplete($('#id_email'), 'email');
+});
+</script>
         </div>
     </div>
 
@@ -105,9 +247,9 @@ m            {% if error_message %}
                     <tbody>
                         {% for pago in historial_pagos %}
                         <tr>
-                            <td>{{ pago.payment_date }}</td>
-                            <td>{{ pago.student_name }}</td>
-                            <td>{{ pago.student_id }}</td>
+                            <td>{{ pago.payment_date|date:"j \d\e F \d\e Y" }}</td>
+                            <td>{{ pago.get_student_name }}</td>
+                            <td>{{ pago.get_student_id }}</td>
                             <td>{{ pago.amount }}</td>
                             <td>{{ pago.payment_method }}</td>
                             <td>{{ pago.reference_code }}</td>

@@ -3,6 +3,8 @@ from django.urls import path
 from . import views
 from .views import FacturaPagoDeleteView
 from gakusei.views import  payment_view
+from .views import buscar_estudiante_por_cedula
+from .views import autocomplete_estudiante
 urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
@@ -11,9 +13,11 @@ urlpatterns = [
     # factura
     path('myfactura/', payment_view, name='payment_form'),
     path('myfactura/delete/<int:pk>/', FacturaPagoDeleteView.as_view(), name='facturapago-delete'),
+    path('estudiantes-autocomplete/', views.estudiantes_autocomplete, name='estudiantes-autocomplete'),
 
     path("sensei/", views.SenseiListView.as_view(), name="sensei"),
     path("sensei/<int:pk>", views.SenseiDetailView.as_view(), name="sensei-detail"),
+    path('buscar-estudiante/', views.buscar_estudiante_por_cedula, name='buscar_estudiante'),
     path("sensei/registrar", views.SenseiCreateView.as_view(), name="sensei-create"),
     path("sensei/editar/<int:pk>", views.SenseiEditView.as_view(), name="sensei-edit"),
     path("sensei/eliminar/<int:pk>", views.SenseiDeleteView.as_view(), name="sensei-delete"),
@@ -138,4 +142,8 @@ urlpatterns = [
     path("api/solvencias/generate", views.SolvenciaGenerator, name="api-solvencias-generator"),
     path("api/emails/send", views.EmailSender, name="api-email-send"),
     
+]
+
+urlpatterns += [
+    path('autocomplete-estudiante/', autocomplete_estudiante, name='autocomplete_estudiante'),
 ]
